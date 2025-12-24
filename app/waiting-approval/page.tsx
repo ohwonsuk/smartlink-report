@@ -1,37 +1,73 @@
-"use client";
+'use client';
 
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+
+type Profile = {
+  display_name: string | null;
+  email: string | null;
+  department: string | null;
+  is_approved: boolean;
+  role: string;
+};
 
 export default function WaitingApprovalPage() {
-  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
-    const getUser = async () => {
+    const checkProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUser(user);
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      // 프로필 조회
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, email, department, is_approved, role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('프로필 조회 오류:', error);
+        setLoading(false);
+        return;
+      }
+
+      setProfile(data);
       setLoading(false);
+
+      // 승인되었으면 리다이렉트
+      if (data?.is_approved) {
+        if (data.role === 'admin') {
+          router.push('/admin/users');
+        } else {
+          router.push('/report');
+        }
+      }
     };
 
-    getUser();
-  }, [supabase]);
+    checkProfile();
+  }, [supabase, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push('/login');
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">로딩 중...</p>
         </div>
       </div>
@@ -39,12 +75,13 @@ export default function WaitingApprovalPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
+        {/* 경고 아이콘 */}
+        <div className="flex justify-center">
+          <div className="rounded-full bg-yellow-100 p-6">
             <svg
-              className="h-8 w-8 text-yellow-600"
+              className="h-12 w-12 text-yellow-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -57,50 +94,66 @@ export default function WaitingApprovalPage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">관리자 승인 대기 중</h1>
-          <p className="text-gray-600 mb-4">
-            로그인하신 계정은 아직 관리자의 승인을 받지 못했습니다.
+        </div>
+
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            관리자 승인 대기 중
+          </h2>
+          <p className="text-sm text-gray-600">
+            계정이 관리자의 승인을 기다리고 있습니다. 승인 후 리포트에 접근할 수 있습니다.
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-blue-900 mb-2">로그인 정보</h3>
-          <div className="space-y-1 text-sm text-blue-800">
-            <p>
-              <span className="font-medium">이메일:</span> {user?.email}
-            </p>
-            <p>
-              <span className="font-medium">계정 생성:</span>{" "}
-              {user?.created_at ? new Date(user.created_at).toLocaleDateString("ko-KR") : "-"}
-            </p>
+        {/* 로그인 정보 */}
+        <div className="bg-blue-50 rounded-lg p-6 space-y-3">
+          <h3 className="text-sm font-semibold text-blue-900">로그인 정보</h3>
+          <div className="space-y-2 text-sm">
+            {profile?.email && (
+              <div className="flex items-start">
+                <span className="font-medium text-blue-900 min-w-[60px]">이메일:</span>
+                <span className="text-blue-700">{profile.email}</span>
+              </div>
+            )}
+            {profile?.display_name && (
+              <div className="flex items-start">
+                <span className="font-medium text-blue-900 min-w-[60px]">이름:</span>
+                <span className="text-blue-700">{profile.display_name}</span>
+              </div>
+            )}
+            {profile?.department && (
+              <div className="flex items-start">
+                <span className="font-medium text-blue-900 min-w-[60px]">부서:</span>
+                <span className="text-blue-700">{profile.department}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="space-y-3">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">다음 단계</h3>
-            <ul className="text-sm text-gray-600 space-y-2">
-              <li className="flex items-start">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
-                <span>관리자에게 계정 승인을 요청하세요</span>
-              </li>
-              <li className="flex items-start">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
-                <span>승인 후 리포트 조회 기능을 이용하실 수 있습니다</span>
-              </li>
-            </ul>
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-          >
-            로그아웃
-          </button>
+        {/* 다음 단계 안내 */}
+        <div className="bg-gray-50 rounded-lg p-6 space-y-3">
+          <h3 className="text-sm font-semibold text-gray-900">다음 단계</h3>
+          <ul className="space-y-2 text-sm text-gray-600">
+            <li className="flex items-start">
+              <span className="mr-2">•</span>
+              <span>관리자에게 계정 승인을 요청하세요</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2">•</span>
+              <span>승인 후 리포트 조회 기능을 이용하실 수 있습니다</span>
+            </li>
+          </ul>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-4">
-          승인 관련 문의는 시스템 관리자에게 연락하세요
+        <button
+          onClick={handleLogout}
+          className="w-full group relative flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
+          로그아웃
+        </button>
+
+        <p className="text-center text-xs text-gray-500">
+          승인 관련 문의는 시스템 관리자에게 연락해주세요
         </p>
       </div>
     </div>

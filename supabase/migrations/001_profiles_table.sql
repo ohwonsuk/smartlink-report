@@ -11,6 +11,7 @@ END $$;
 -- 2) profiles 테이블 생성
 CREATE TABLE IF NOT EXISTS public.profiles (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT,
   role public.user_role NOT NULL DEFAULT 'user',
   display_name TEXT,
   department TEXT,
@@ -72,6 +73,7 @@ CREATE POLICY "Admins can update all profiles"
   );
 
 -- 6) 로그인 시 자동으로 profiles 생성하는 트리거 함수
+-- display_name을 NULL로 설정하여 프로필 설정 페이지로 유도
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -79,10 +81,11 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 BEGIN
-  INSERT INTO public.profiles (user_id, display_name, department)
+  INSERT INTO public.profiles (user_id, email, display_name, department)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    NEW.email,  -- auth.users의 email 저장
+    NULL,  -- 사용자가 직접 입력하도록 NULL로 설정
     NULL
   );
   RETURN NEW;

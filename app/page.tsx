@@ -16,7 +16,7 @@ export default async function Home() {
   // 프로필 조회 (디버깅 로그 추가)
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role, is_approved")
+    .select("role, is_approved, display_name")
     .eq("user_id", user.id)
     .single();
 
@@ -26,10 +26,34 @@ export default async function Home() {
     console.log("User ID:", user.id);
   }
 
-  // 프로필이 없으면 대기 화면으로 (트리거 실패 케이스)
+  // 프로필이 없으면 생성 후 프로필 설정 페이지로 (트리거 실패 케이스)
   if (!profile) {
-    console.warn("Profile이 존재하지 않습니다. 대기 화면으로 이동");
-    redirect("/waiting-approval");
+    console.warn("Profile이 존재하지 않습니다. 프로필 생성 중...");
+    
+    // 프로필 생성 (트리거가 실행되지 않은 경우 대비)
+    const { error: insertError } = await supabase
+      .from("profiles")
+      .insert({
+        user_id: user.id,
+        email: user.email,
+        display_name: null,
+        department: null,
+      });
+
+    if (insertError) {
+      console.error("Profile 생성 오류:", insertError);
+      // 생성 실패 시 로그아웃
+      await supabase.auth.signOut();
+      redirect("/login");
+    }
+
+    // 생성 성공 시 프로필 설정 페이지로
+    redirect("/profile-setup");
+  }
+
+  // display_name이 없으면 프로필 설정 페이지로
+  if (!profile.display_name) {
+    redirect("/profile-setup");
   }
 
   // Admin인 경우 승인 여부와 관계없이 Admin 페이지로
@@ -42,6 +66,6 @@ export default async function Home() {
     redirect("/waiting-approval");
   }
 
-  // 승인된 일반 사용자는 리포트 선택 화면으로 (Phase 3+에서 구현)
+  // 승인된 일반 사용자는 리포트 선택 화면으로 (Phase 3에서 구현)
   redirect("/report");
 }
