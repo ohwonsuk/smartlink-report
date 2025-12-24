@@ -1,0 +1,10 @@
+# Prettier ignore file
+.next/
+node_modules/
+out/
+build/
+dist/
+*.config.js
+*.config.mjs
+*.config.cjs
+

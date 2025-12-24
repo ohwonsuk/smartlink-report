@@ -27,6 +27,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 ### 3단계: Supabase 설정
 
 #### 3-1. Google OAuth 설정
+
 1. Supabase Dashboard > Authentication > Providers로 이동
 2. Google Provider 활성화
 3. Google Cloud Console에서 OAuth 2.0 클라이언트 ID 생성
@@ -35,7 +36,9 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
    - 배포: `https://your-domain.vercel.app/auth/callback`
 
 #### 3-2. 데이터베이스 마이그레이션
+
 Supabase Dashboard > SQL Editor에서 다음 파일 실행:
+
 - `supabase/migrations/001_profiles_table.sql`
 
 ### 4단계: 개발 서버 실행
@@ -54,8 +57,8 @@ http://localhost:3000 접속
 
 ```sql
 -- user_id를 본인 계정의 UUID로 변경
-UPDATE public.profiles 
-SET role = 'admin', is_approved = TRUE 
+UPDATE public.profiles
+SET role = 'admin', is_approved = TRUE
 WHERE user_id = 'your-user-id-here';
 ```
 
@@ -100,4 +103,3 @@ smartlink-report/
 ## 문의사항
 
 Phase 1 완료 후 테스트하시고, 다음 단계 진행 시 말씀해주세요!
-

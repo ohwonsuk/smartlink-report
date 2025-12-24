@@ -11,6 +11,7 @@ infinite recursion detected in policy for relation "profiles"
 ## 원인
 
 기존 RLS 정책:
+
 ```sql
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles
@@ -25,6 +26,7 @@ CREATE POLICY "Admins can view all profiles"
 ```
 
 이 정책은:
+
 1. `profiles` 조회 시 → "이 사용자가 admin인가?" 확인
 2. admin 확인을 위해 → 다시 `profiles` 조회
 3. 그 조회도 RLS 정책 적용 → 다시 admin 확인
@@ -117,9 +119,11 @@ npm run dev
 ## 테스트 시나리오
 
 ### 1. Admin 로그인
+
 1. Supabase SQL Editor에서 본인을 Admin으로 설정:
+
    ```sql
-   UPDATE public.profiles 
+   UPDATE public.profiles
    SET role = 'admin', is_approved = true
    WHERE user_id = '53e9e0dc-b9df-4e12-8943-a08288d18344';
    ```
@@ -127,11 +131,13 @@ npm run dev
 2. 로그인 후 `/admin/users`로 자동 이동 확인
 
 ### 2. 사용자 관리
+
 1. Admin 페이지에서 모든 사용자 목록 조회
 2. 사용자 승인/거부 테스트
 3. 권한 변경 테스트 (user ↔ admin)
 
 ### 3. 일반 사용자
+
 1. 다른 계정으로 로그인
 2. 승인 대기 화면 표시 확인
 3. Admin이 승인 후 `/report`로 이동 (Phase 3+에서 구현)
@@ -139,13 +145,17 @@ npm run dev
 ## 문제 해결
 
 ### service_role key 에러
+
 ```
 Missing Supabase environment variables
 ```
+
 → `.env.local`에 `SUPABASE_SERVICE_ROLE_KEY` 추가 및 서버 재시작
 
 ### Admin 페이지 접근 불가
+
 1. Supabase SQL Editor에서 본인 프로필 확인:
+
    ```sql
    SELECT user_id, role, is_approved
    FROM public.profiles
@@ -160,6 +170,7 @@ Missing Supabase environment variables
    ```
 
 ### RLS 정책 재설정
+
 ```sql
 -- 기존 정책 삭제
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
@@ -175,4 +186,3 @@ DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
 - **RLS (Row Level Security)**: PostgreSQL의 보안 기능으로, 행 단위 접근 제어
 - **service_role**: RLS를 우회하는 특수 권한 키
 - **Infinite Recursion**: RLS 정책이 자기 자신을 참조하여 발생하는 순환 참조 문제
-

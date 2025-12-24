@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 const navItems = [
-  { name: '사용자 관리', href: '/admin/users', icon: '👥' },
-  { name: 'CSV 업로드', href: '/admin/upload', icon: '📤', disabled: true },
-  { name: '대시보드', href: '/admin', icon: '📊', disabled: true },
+  { name: "사용자 관리", href: "/admin/users", icon: "👥" },
+  { name: "CSV 업로드", href: "/admin/upload", icon: "📤", disabled: true },
+  { name: "대시보드", href: "/admin", icon: "📊", disabled: true },
 ];
 
 export default function AdminNav() {
@@ -18,7 +18,7 @@ export default function AdminNav() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/login');
+    router.push("/login");
   };
 
   return (
@@ -33,15 +33,15 @@ export default function AdminNav() {
               return (
                 <Link
                   key={item.href}
-                  href={isDisabled ? '#' : item.href}
+                  href={isDisabled ? "#" : item.href}
                   className={`
                     px-4 py-2 rounded-lg text-sm font-medium transition-colors
                     ${
                       isDisabled
-                        ? 'text-gray-400 cursor-not-allowed'
+                        ? "text-gray-400 cursor-not-allowed"
                         : isActive
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-700 hover:bg-gray-100"
                     }
                   `}
                   onClick={(e) => {
@@ -51,7 +51,9 @@ export default function AdminNav() {
                   <span className="mr-2">{item.icon}</span>
                   {item.name}
                   {isDisabled && (
-                    <span className="ml-2 text-xs text-gray-400">(Phase 6+)</span>
+                    <span className="ml-2 text-xs text-gray-400">
+                      (Phase 6+)
+                    </span>
                   )}
                 </Link>
               );
@@ -69,4 +71,3 @@ export default function AdminNav() {
     </nav>
   );
 }
-

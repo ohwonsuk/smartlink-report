@@ -16,6 +16,7 @@ Supabase SQL Editor에서 다음 파일을 실행:
 ```
 
 이 파일은 다음을 수행합니다:
+
 1. 기존 `companies` 테이블 삭제 (CASCADE로 관련 객체도 삭제)
 2. 새로운 테이블 생성 (cmny_id INTEGER PRIMARY KEY)
 3. 인덱스 생성
@@ -29,6 +30,7 @@ Supabase SQL Editor에서 다음 파일을 실행:
 ```
 
 샘플 데이터 5개가 cmny_id와 함께 입력됩니다:
+
 - cmny_id: 1, 2, 3, 4, 5
 - 고객사명: SK렌터카, 현대렌터카, 롯데렌터카, 에이비카, 그린카
 
@@ -41,7 +43,7 @@ Supabase SQL Editor에서 다음 파일을 실행:
 CREATE TABLE companies_backup AS SELECT * FROM public.companies;
 ```
 
-⚠️ **외래키 참조**: 다른 테이블에서 companies를 참조하는 외래키가 있다면 CASCADE로 삭제됩니다. 
+⚠️ **외래키 참조**: 다른 테이블에서 companies를 참조하는 외래키가 있다면 CASCADE로 삭제됩니다.
 나중에 Phase 3+에서 생성될 테이블들도 영향을 받을 수 있습니다.
 
 ## 확인
@@ -50,17 +52,16 @@ CREATE TABLE companies_backup AS SELECT * FROM public.companies;
 
 ```sql
 -- 테이블 구조 확인
-SELECT 
-  column_name, 
-  data_type, 
+SELECT
+  column_name,
+  data_type,
   is_nullable,
   column_default
 FROM information_schema.columns
-WHERE table_schema = 'public' 
+WHERE table_schema = 'public'
   AND table_name = 'companies'
 ORDER BY ordinal_position;
 
 -- 데이터 확인
 SELECT * FROM public.companies ORDER BY cmny_id;
 ```
-

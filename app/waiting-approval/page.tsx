@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function WaitingApprovalPage() {
   const [user, setUser] = useState<any>(null);
@@ -24,7 +24,7 @@ export default function WaitingApprovalPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/login');
+    router.push("/login");
   };
 
   if (loading) {
@@ -70,8 +70,8 @@ export default function WaitingApprovalPage() {
               <span className="font-medium">이메일:</span> {user?.email}
             </p>
             <p>
-              <span className="font-medium">계정 생성:</span>{' '}
-              {user?.created_at ? new Date(user.created_at).toLocaleDateString('ko-KR') : '-'}
+              <span className="font-medium">계정 생성:</span>{" "}
+              {user?.created_at ? new Date(user.created_at).toLocaleDateString("ko-KR") : "-"}
             </p>
           </div>
         </div>
@@ -106,4 +106,3 @@ export default function WaitingApprovalPage() {
     </div>
   );
 }
-
