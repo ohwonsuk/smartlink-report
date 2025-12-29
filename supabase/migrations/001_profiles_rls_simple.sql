@@ -29,3 +29,5 @@ CREATE POLICY "Users can update own basic info"
 -- 서버 측 코드에서 service_role key를 사용해야 합니다.
 -- 이렇게 하면 RLS 무한 재귀 문제를 완전히 피할 수 있습니다.
 
+
+

@@ -25,3 +25,5 @@ export async function GET(request: Request) {
   // 오류 발생 시 로그인 페이지로 리다이렉트
   return NextResponse.redirect(`${origin}/login`);
 }
+
+

@@ -14,3 +14,5 @@ CREATE INDEX IF NOT EXISTS companies_name_idx
 CREATE INDEX IF NOT EXISTS companies_name_lower_idx 
   ON public.companies (LOWER(cmny_nm));
 
+
+

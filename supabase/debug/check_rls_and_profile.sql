@@ -68,3 +68,5 @@ ORDER BY e.enumsortorder;
 -- 8) RLS 다시 활성화
 -- ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+
+

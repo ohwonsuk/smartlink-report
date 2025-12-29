@@ -50,3 +50,5 @@ FROM public.monthly_summary ms
 JOIN public.companies c ON ms.cmny_id = c.cmny_id
 ORDER BY c.cmny_nm, ms.year_month;
 
+
+

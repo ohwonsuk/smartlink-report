@@ -120,3 +120,5 @@ supabase/
 
 자세한 내용은 `PHASE3_PLAN.md` 참조
 
+
+

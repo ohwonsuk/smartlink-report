@@ -61,3 +61,5 @@ CREATE POLICY "Admins can update all profiles"
 -- 참고: 이 정책도 재귀 가능성이 있지만, UPDATE는 일반적으로 덜 빈번하므로
 -- 문제가 될 가능성이 낮음. 만약 문제가 되면 서버 측에서 service_role 사용 필요
 
+
+

@@ -7,3 +7,5 @@ CREATE POLICY "Users can insert own profile"
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+
+

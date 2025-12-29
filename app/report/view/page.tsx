@@ -59,19 +59,29 @@ export default async function ReportViewPage({
     redirect('/report');
   }
 
-  // 월간 요약 데이터 조회 (선택 월 + 전월)
+  // 월간 요약 데이터 조회 (3개월치)
   const currentYearMonth = yearMonth.replace('-', '');
-  const prevYearMonth = getPreviousYearMonth(currentYearMonth);
+  const prevMonth1 = getPreviousYearMonth(currentYearMonth);
+  const prevMonth2 = getPreviousYearMonth(prevMonth1);
 
   const { data: summaryData } = await supabase
     .from('monthly_summary')
     .select('*')
     .eq('cmny_id', cmnyId)
-    .in('year_month', [currentYearMonth, prevYearMonth])
-    .order('year_month', { ascending: false });
+    .in('year_month', [currentYearMonth, prevMonth1, prevMonth2])
+    .order('year_month', { ascending: true });
 
   const currentSummary = summaryData?.find((s) => s.year_month === currentYearMonth);
-  const previousSummary = summaryData?.find((s) => s.year_month === prevYearMonth);
+  const previousSummary = summaryData?.find((s) => s.year_month === prevMonth1);
+
+  // 차량별 가동률 Top 5 조회 (현재 월만)
+  const { data: utilizationData } = await supabase
+    .from('utilization_vehicle')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('utilization_pct', { ascending: false })
+    .limit(5);
 
   if (!currentSummary) {
     return (
@@ -118,9 +128,11 @@ export default async function ReportViewPage({
       <div className={`mx-auto ${viewMode === 'pc' ? 'max-w-[1200px]' : 'max-w-full'} py-8`}>
         <ReportSummary
           company={company}
+          summaryData={summaryData || []}
           currentSummary={currentSummary}
           previousSummary={previousSummary}
-          yearMonth={currentYearMonth}
+          utilizationData={utilizationData || []}
+          currentYearMonth={currentYearMonth}
           viewMode={viewMode}
         />
 

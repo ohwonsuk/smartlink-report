@@ -65,3 +65,5 @@ ORDER BY ordinal_position;
 -- 데이터 확인
 SELECT * FROM public.companies ORDER BY cmny_id;
 ```
+
+

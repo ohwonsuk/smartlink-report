@@ -190,3 +190,5 @@ WHERE user_id = 'your-user-id';
 
 - Admin 권한이 있는지 확인
 - RLS 정책에서 Admin만 업데이트 가능하도록 설정되어 있음
+
+

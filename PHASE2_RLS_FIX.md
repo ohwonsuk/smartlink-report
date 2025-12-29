@@ -186,3 +186,5 @@ DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
 - **RLS (Row Level Security)**: PostgreSQL의 보안 기능으로, 행 단위 접근 제어
 - **service_role**: RLS를 우회하는 특수 권한 키
 - **Infinite Recursion**: RLS 정책이 자기 자신을 참조하여 발생하는 순환 참조 문제
+
+
