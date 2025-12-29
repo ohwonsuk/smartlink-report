@@ -3,13 +3,13 @@
 -- 기존 데이터 삭제
 DELETE FROM public.monthly_summary WHERE cmny_id IN (1001, 1002, 1003);
 
--- SK하이닉스 (153) - 2025년 9월, 10월, 11월
+-- SK렌터카 (153) - 2025년 9월, 10월, 11월
 INSERT INTO public.monthly_summary (cmny_id, year_month, vehicle_count, total_mileage_km, total_driving_minutes, trip_log_vehicle_count, avg_safe_score, maintenance_completed_count, accident_count, violation_count, violation_amount) VALUES
   (153, '202509', 50, 125000, 540000, 45, 87.5, 12, 5, 3, 280000),
   (153, '202510', 51, 132000, 550800, 50, 88.2, 10, 4, 2, 200000),
   (153, '202511', 52, 145000, 562560, 48, 88.5, 8, 3, 1, 140000);
 
--- SK렌터카 (10) - 2025년 9월, 10월, 11월
+-- SK하이닉스 (10) - 2025년 9월, 10월, 11월
 INSERT INTO public.monthly_summary (cmny_id, year_month, vehicle_count, total_mileage_km, total_driving_minutes, trip_log_vehicle_count, avg_safe_score, maintenance_completed_count, accident_count, violation_count, violation_amount) VALUES
   (10, '202509', 30, 75000, 324000, 28, 85.0, 8, 3, 2, 180000),
   (10, '202510', 30, 78000, 330000, 29, 85.5, 7, 2, 2, 150000),

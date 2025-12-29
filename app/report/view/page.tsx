@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import ReportSummary from './components/ReportSummary';
 import ServiceIntro from './components/ServiceIntro';
 import ReportActionsClient from './components/ReportActionsClient';
+import ReportViewClient from './components/ReportViewClient';
 
 type SearchParams = {
   cmny_id?: string;
@@ -83,6 +84,87 @@ export default async function ReportViewPage({
     .order('utilization_pct', { ascending: false })
     .limit(5);
 
+  // 상세 리포트 데이터 조회
+  // 1. 차량별 가동률 - 전체 차량 (가동률 기준 내림차순)
+  const { data: utilizationVehiclesData } = await supabase
+    .from('utilization_vehicle')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('utilization_pct', { ascending: false });
+
+  // 2. 총 월 주행거리 - Top 20 (누적주행거리 기준)
+  const { data: monthlyMileagesData } = await supabase
+    .from('monthly_mileage')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('monthly_total_mileage_km', { ascending: false })
+    .limit(20);
+
+  // 3. 운행기록부 - driving_logs가 있는 차량 중 주행거리가 가장 긴 차량 선택
+  const { data: topVehicle } = await supabase
+    .from('driving_logs_monthly_summary')
+    .select('vehicle_no, vehicle_model, total_distance_km')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('total_distance_km', { ascending: false })
+    .limit(1)
+    .single();
+
+  let drivingLogsData = null;
+  if (topVehicle) {
+    const { data: logs } = await supabase
+      .from('driving_logs')
+      .select('*')
+      .eq('cmny_id', cmnyId)
+      .eq('year_month', currentYearMonth)
+      .eq('vehicle_no', topVehicle.vehicle_no)
+      .order('log_date', { ascending: true });
+
+    drivingLogsData = {
+      vehicleInfo: {
+        vehicle_no: topVehicle.vehicle_no,
+        vehicle_model: topVehicle.vehicle_model,
+      },
+      logs: logs || [],
+    };
+  }
+
+  // 4. 안전점수 - Top 20
+  const { data: safetyScoresData } = await supabase
+    .from('safety_scores')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('total_distance_km', { ascending: false })
+    .limit(20);
+
+  // 5. 정비현황 - Top 20 (입고일자 기준 최신순)
+  const { data: maintenanceData } = await supabase
+    .from('maintenance_records')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('check_in_date', { ascending: false })
+    .limit(20);
+
+  // 6. 사고내역 (사고일시 기준 최신순)
+  const { data: accidentsData } = await supabase
+    .from('accidents')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('accident_datetime', { ascending: false });
+
+  // 7. 범칙금 (위반일시 기준 최신순)
+  const { data: violationsData } = await supabase
+    .from('violations')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth)
+    .order('violation_datetime', { ascending: false });
+
   if (!currentSummary) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -126,7 +208,7 @@ export default async function ReportViewPage({
 
       {/* 리포트 본문 */}
       <div className={`mx-auto ${viewMode === 'pc' ? 'max-w-[1200px]' : 'max-w-full'} py-8`}>
-        <ReportSummary
+        <ReportViewClient
           company={company}
           summaryData={summaryData || []}
           currentSummary={currentSummary}
@@ -134,10 +216,16 @@ export default async function ReportViewPage({
           utilizationData={utilizationData || []}
           currentYearMonth={currentYearMonth}
           viewMode={viewMode}
+          detailData={{
+            utilizationVehicles: utilizationVehiclesData || [],
+            monthlyMileages: monthlyMileagesData || [],
+            drivingLogs: drivingLogsData,
+            safetyScores: safetyScoresData || [],
+            maintenanceRecords: maintenanceData || [],
+            accidents: accidentsData || [],
+            violations: violationsData || [],
+          }}
         />
-
-        {/* 서비스 소개 섹션 */}
-        <ServiceIntro viewMode={viewMode} />
 
         {/* 하단 버튼 */}
         <ReportActionsClient />

@@ -1,0 +1,17 @@
+-- ⚠️ 주의: 이 파일은 더 이상 사용하지 않습니다 ⚠️
+-- 
+-- utilization_vehicle 테이블은 CSV 업로드용 데이터만 관리합니다.
+-- mileage_km 컬럼은 추가하지 않습니다.
+-- 
+-- 데이터 구조:
+-- - cmny_id: 고객사 ID
+-- - year_month: 년월 (YYYYMM)
+-- - vehicle_no: 차량번호
+-- - vehicle_model: 차종
+-- - driving_minutes: 주행시간(분)
+-- - utilization_pct: 가동률(%)
+-- 
+-- 샘플 데이터는 013_utilization_vehicle_csv_sample.sql 참조
+-- 
+-- 운행기록부 데이터는 driving_logs 테이블에서 별도 관리
+
