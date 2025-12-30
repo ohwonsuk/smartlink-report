@@ -85,24 +85,25 @@ export default async function ReportViewPage({
     .limit(5);
 
   // 상세 리포트 데이터 조회
-  // 1. 차량별 가동률 - 전체 차량 (가동률 기준 내림차순)
+  // 1. 차량별 가동률 - Top 15
   const { data: utilizationVehiclesData } = await supabase
     .from('utilization_vehicle')
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
-    .order('utilization_pct', { ascending: false });
+    .order('utilization_pct', { ascending: false })
+    .limit(15);
 
-  // 2. 총 월 주행거리 - Top 20 (누적주행거리 기준)
+  // 2. 총 월 주행거리 - Top 15
   const { data: monthlyMileagesData } = await supabase
     .from('monthly_mileage')
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
     .order('monthly_total_mileage_km', { ascending: false })
-    .limit(20);
+    .limit(15);
 
-  // 3. 운행기록부 - driving_logs가 있는 차량 중 주행거리가 가장 긴 차량 선택
+  // 3. 운행기록부 - driving_logs
   const { data: topVehicle } = await supabase
     .from('driving_logs_monthly_summary')
     .select('vehicle_no, vehicle_model, total_distance_km')
@@ -120,7 +121,8 @@ export default async function ReportViewPage({
       .eq('cmny_id', cmnyId)
       .eq('year_month', currentYearMonth)
       .eq('vehicle_no', topVehicle.vehicle_no)
-      .order('log_date', { ascending: true });
+      .order('log_date', { ascending: true })
+      .limit(12); // 운행일지는 행이 많으므로 12건
 
     drivingLogsData = {
       vehicleInfo: {
@@ -131,39 +133,41 @@ export default async function ReportViewPage({
     };
   }
 
-  // 4. 안전점수 - Top 20
+  // 4. 안전점수 - Top 15
   const { data: safetyScoresData } = await supabase
     .from('safety_scores')
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
     .order('total_distance_km', { ascending: false })
-    .limit(20);
+    .limit(15);
 
-  // 5. 정비현황 - Top 20 (입고일자 기준 최신순)
+  // 5. 정비현황 - Top 10
   const { data: maintenanceData } = await supabase
     .from('maintenance_records')
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
     .order('check_in_date', { ascending: false })
-    .limit(20);
+    .limit(10);
 
-  // 6. 사고내역 (사고일시 기준 최신순)
+  // 6. 사고내역 (최신 10건)
   const { data: accidentsData } = await supabase
     .from('accidents')
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
-    .order('accident_datetime', { ascending: false });
+    .order('accident_datetime', { ascending: false })
+    .limit(10);
 
-  // 7. 범칙금 (위반일시 기준 최신순)
+  // 7. 범칙금 (최신 10건)
   const { data: violationsData } = await supabase
     .from('violations')
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
-    .order('violation_datetime', { ascending: false });
+    .order('violation_datetime', { ascending: false })
+    .limit(10);
 
   if (!currentSummary) {
     return (
@@ -201,7 +205,9 @@ export default async function ReportViewPage({
             </div>
 
             {/* 우: 서비스 제공업체 로고 */}
-            <div className="text-sm font-medium text-gray-600">스마트링크</div>
+            <div className="flex items-center">
+              <img src="/logo.svg" alt="SK렌터카" className="h-6 w-auto" />
+            </div>
           </div>
         </div>
       </div>

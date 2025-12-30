@@ -21,7 +21,7 @@ export default function ReportNav({ profile }: { profile: Profile | null }) {
   };
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white shadow-sm no-print">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           {/* 좌측: 로고/타이틀 */}

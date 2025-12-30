@@ -161,9 +161,7 @@ export default function ReportSummary({
   return (
     <div className="space-y-6">
       {/* 1행 */}
-      <div
-        className={`grid gap-6 ${viewMode === 'pc' ? 'grid-cols-4' : 'grid-cols-1'}`}
-      >
+      <div className={`grid gap-6 ${viewMode === 'pc' ? 'grid-cols-4' : 'grid-cols-1'}`}>
         {row1Cards.map((card, index) => (
           <div key={index} className="rounded-lg bg-white p-6 shadow">
             <div className="flex items-center justify-between">
@@ -226,13 +224,11 @@ export default function ReportSummary({
       </div>
 
       {/* 2행 */}
-      <div
-        className={`grid gap-6 ${viewMode === 'pc' ? 'grid-cols-4' : 'grid-cols-1'}`}
-      >
+      <div className={`grid gap-6 ${viewMode === 'pc' ? 'grid-cols-4' : 'grid-cols-1'}`}>
         {row2Cards.map((card, index) => (
           <div key={index} className="rounded-lg bg-white p-6 shadow">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-600">{card.title}</h3>
+              <h3 className="text-sm font-medium text-gray-600 summary-card-title">{card.title}</h3>
               <span className="text-2xl">{card.icon}</span>
             </div>
 
@@ -243,7 +239,7 @@ export default function ReportSummary({
                   {topVehicles.map((vehicle, vIndex) => (
                     <div
                       key={vIndex}
-                      className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2"
+                      className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 top-vehicle-item"
                     >
                       <div className="flex items-center space-x-2.5">
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
@@ -253,9 +249,9 @@ export default function ReportSummary({
                           <span className="text-sm font-medium text-gray-900">
                             {vehicle.vehicle_no}
                           </span>
-                          {vehicle.vehicle_model && (
+                          {/* {vehicle.vehicle_model && (
                             <span className="text-xs text-gray-500">{vehicle.vehicle_model}</span>
-                          )}
+                          )} */}
                         </div>
                       </div>
                       <span className="text-base font-bold text-indigo-600">
@@ -331,11 +327,7 @@ function renderChange(
   const isNegative = diff < 0;
 
   if (diff === 0) {
-    return (
-      <span className="text-xs text-gray-500">
-        {compact ? '→' : '전월 대비 변동 없음'}
-      </span>
-    );
+    return <span className="text-xs text-gray-500">{compact ? '→' : '전월 대비 변동 없음'}</span>;
   }
 
   return (

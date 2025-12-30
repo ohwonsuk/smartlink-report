@@ -25,8 +25,20 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
 
   if (scores.length === 0) {
     return (
-      <div className="rounded-lg bg-white p-8 text-center shadow">
-        <p className="text-gray-500">안전점수 데이터가 없습니다.</p>
+      <div className="rounded-lg bg-white p-6 shadow">
+        {/* 헤더 */}
+        <div className="mb-6 flex items-center justify-between border-b pb-4">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">🛡️</span>
+            <h2 className="text-xl font-bold text-gray-900">구성원별 평균안전점수</h2>
+          </div>
+          <div className="text-sm text-gray-600">
+            Monthly Report - {year}년 {month}월
+          </div>
+        </div>
+        <div className="py-12 text-center">
+          <p className="text-gray-500">안전점수 데이터가 없습니다.</p>
+        </div>
       </div>
     );
   }
@@ -105,7 +117,7 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {scores.slice(0, 20).map((score, index) => (
+            {scores.slice(0, 15).map((score, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 {/* 기본정보 */}
                 <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-gray-900">
@@ -148,7 +160,7 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
 
       {/* 하단 주석 */}
       <div className="mt-4 text-center text-xs text-gray-500">
-        [MAX] 20대 차량 정보 출력
+        [MAX] 15명 운전자 정보 출력
       </div>
     </div>
   );

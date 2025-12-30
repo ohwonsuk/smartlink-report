@@ -1,0 +1,111 @@
+/* PDF 생성 전용 스타일 */
+
+/* 페이지 설정 */
+@page {
+  size: A4 landscape;
+  margin: 10mm 10mm 10mm 10mm;
+}
+
+/* 전체 레이아웃 */
+body {
+  margin: 0;
+  padding: 0;
+  background: white;
+}
+
+/* 각 섹션을 페이지로 분리 */
+.report-section {
+  page-break-after: always;
+  page-break-inside: avoid;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* 마지막 섹션은 페이지 나누기 안 함 */
+.report-section:last-child {
+  page-break-after: auto;
+}
+
+/* 테이블 최적화 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  page-break-inside: auto;
+}
+
+tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+
+thead {
+  display: table-header-group;
+}
+
+/* 배경색 유지 */
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+}
+
+/* 그림자 제거 */
+* {
+  box-shadow: none !important;
+}
+
+/* 버튼 및 네비게이션 숨기기 */
+button,
+nav,
+.no-print,
+.report-actions {
+  display: none !important;
+}
+
+/* 헤더 고정 */
+.report-header {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+/* 차트 및 이미지 최적화 */
+img,
+canvas {
+  max-width: 100%;
+  page-break-inside: avoid;
+}
+
+/* 텍스트 최적화 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
+
+p {
+  orphans: 3;
+  widows: 3;
+}
+
+/* 링크 스타일 */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 테이블 테두리 */
+table,
+th,
+td {
+  border: 1px solid #d1d5db;
+}
+
+th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+

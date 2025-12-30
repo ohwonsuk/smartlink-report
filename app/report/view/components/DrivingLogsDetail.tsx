@@ -55,14 +55,37 @@ export default function DrivingLogsDetail({
 
   if (logs.length === 0) {
     return (
-      <div className="rounded-lg bg-white p-8 text-center shadow">
-        <p className="text-gray-500">운행 기록이 없습니다.</p>
+      <div className="rounded-lg bg-white p-6 shadow">
+        {/* 1. 표준 상세리포트 헤더 추가 */}
+        <div className="mb-6 flex items-center justify-between border-b pb-4">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">📝</span>
+            <h2 className="text-xl font-bold text-gray-900">운행일지 생성</h2>
+          </div>
+          <div className="text-sm text-gray-600">
+            Monthly Report - {year}년 {month}월
+          </div>
+        </div>
+        <div className="py-12 text-center">
+          <p className="text-gray-500">운행 기록이 없습니다.</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="rounded-lg bg-white p-6 shadow">
+      {/* 1. 표준 상세리포트 헤더 추가 */}
+      <div className="mb-6 flex items-center justify-between border-b pb-4">
+        <div className="flex items-center space-x-3">
+          <span className="text-2xl">📝</span>
+          <h2 className="text-xl font-bold text-gray-900">운행일지 생성</h2>
+        </div>
+        <div className="text-sm text-gray-600">
+          Monthly Report - {year}년 {month}월
+        </div>
+      </div>
+
       {/* 헤더 - 이미지 양식과 동일하게 */}
       <div className="mb-6 border border-gray-300">
         <table className="w-full border-collapse">
@@ -75,7 +98,7 @@ export default function DrivingLogsDetail({
                 {startDate}
               </td>
               <td
-                className="border border-gray-300 p-4 text-center align-middle text-2xl font-bold"
+                className="border border-gray-300 p-4 text-center align-middle text-xl font-bold"
                 rowSpan={2}
               >
                 업무용승용차 운행기록부
@@ -111,7 +134,7 @@ export default function DrivingLogsDetail({
               <td className="w-32 border border-gray-300 bg-gray-50 p-2 text-center text-sm font-medium">
                 차종
               </td>
-              <td className="border border-gray-300 p-2 text-center text-sm">
+              <td className="border border-gray-300 p-2 text-center text-sm min-w-[150px]">
                 {vehicleInfo.vehicle_model || '-'}
               </td>
             </tr>
@@ -178,7 +201,7 @@ export default function DrivingLogsDetail({
                 </th>
                 <th className="border border-gray-300 p-2 text-center text-xs font-medium text-gray-700">
                   주행 전<br />
-                  계기판의 거리
+                  계기판의 거리(km)
                 </th>
                 <th className="border border-gray-300 p-2 text-center text-xs font-medium text-gray-700">
                   주행 후<br />
@@ -198,7 +221,7 @@ export default function DrivingLogsDetail({
               </tr>
             </thead>
             <tbody>
-              {logs.map((log, index) => (
+              {logs.slice(0, 12).map((log, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="border border-gray-300 p-2 text-center">{log.log_date}</td>
                   <td className="border border-gray-300 p-2 text-center">
@@ -225,19 +248,32 @@ export default function DrivingLogsDetail({
                   <td className="border border-gray-300 p-2 text-center">{log.note || ''}</td>
                 </tr>
               ))}
-              {/* 합계 행 */}
-              <tr className="bg-gray-100 font-semibold">
-                <td colSpan={5} className="border border-gray-300 p-2 text-center">
+              {/* 합계 행 (라벨) */}
+              <tr className="bg-gray-50 font-semibold border-t-2 border-gray-400">
+                <td colSpan={3} className="border border-gray-300 p-2 text-center bg-gray-100/50">
                   합계
                 </td>
-                <td className="border border-gray-300 p-2 text-right">
+                <td colSpan={3} className="border border-gray-300 p-1 text-center text-[10px]">
+                  과세기간 총주행 거리(km)
+                </td>
+                <td colSpan={2} className="border border-gray-300 p-1 text-center text-[10px]">
+                  과세기간 업무용 사용거리
+                </td>
+                <td className="border border-gray-300 p-1 text-center text-[10px]">
+                  업무사용비율
+                </td>
+              </tr>
+              {/* 합계 행 (값) */}
+              <tr className="bg-white font-bold">
+                <td colSpan={3} className="border border-gray-300 bg-gray-100/50 p-2"></td>
+                <td colSpan={3} className="border border-gray-300 p-2 text-center text-sm">
                   {totals.distance_km.toLocaleString()}
                 </td>
-                <td colSpan={2} className="border border-gray-300 p-2 text-right">
+                <td colSpan={2} className="border border-gray-300 p-2 text-center text-sm">
                   {totals.business_km.toLocaleString()}
                 </td>
-                <td className="border border-gray-300 p-2 text-center">
-                  {businessUsagePct}%
+                <td className="border border-gray-300 p-2 text-center text-sm">
+                  {Math.round(parseFloat(businessUsagePct))}%
                 </td>
               </tr>
             </tbody>

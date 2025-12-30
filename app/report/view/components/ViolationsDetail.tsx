@@ -32,8 +32,20 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
 
   if (violations.length === 0) {
     return (
-      <div className="rounded-lg bg-white p-8 text-center shadow">
-        <p className="text-gray-500">범칙금 내역이 없습니다.</p>
+      <div className="rounded-lg bg-white p-6 shadow">
+        {/* 헤더 */}
+        <div className="mb-6 flex items-center justify-between border-b pb-4">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">💰</span>
+            <h2 className="text-xl font-bold text-gray-900">범칙금</h2>
+          </div>
+          <div className="text-sm text-gray-600">
+            Monthly Report - {year}년 {month}월
+          </div>
+        </div>
+        <div className="py-12 text-center">
+          <p className="text-gray-500">범칙금 내역이 없습니다.</p>
+        </div>
       </div>
     );
   }
@@ -104,7 +116,7 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {violations.map((violation, index) => (
+            {violations.slice(0, 10).map((violation, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
                   {index + 1}
@@ -169,6 +181,11 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
             </tr>
           </tbody>
         </table>
+      </div>
+
+      {/* 하단 주석 */}
+      <div className="mt-4 text-center text-xs text-gray-500">
+        [MAX] 10건 정보 출력
       </div>
 
       {/* 하단 주석 */}

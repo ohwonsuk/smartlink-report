@@ -19,8 +19,20 @@ export default function UtilizationDetail({ yearMonth, vehicles, viewMode }: Pro
 
   if (vehicles.length === 0) {
     return (
-      <div className="rounded-lg bg-white p-8 text-center shadow">
-        <p className="text-gray-500">차량별 가동률 데이터가 없습니다.</p>
+      <div className="rounded-lg bg-white p-6 shadow">
+        {/* 헤더 */}
+        <div className="mb-6 flex items-center justify-between border-b pb-4">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">⚡</span>
+            <h2 className="text-xl font-bold text-gray-900">차량별 가동률</h2>
+          </div>
+          <div className="text-sm text-gray-600">
+            Monthly Report - {year}년 {month}월
+          </div>
+        </div>
+        <div className="py-12 text-center">
+          <p className="text-gray-500">차량별 가동률 데이터가 없습니다.</p>
+        </div>
       </div>
     );
   }
@@ -61,7 +73,7 @@ export default function UtilizationDetail({ yearMonth, vehicles, viewMode }: Pro
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {vehicles.map((vehicle, index) => (
+            {vehicles.slice(0, 15).map((vehicle, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
                   {index + 1}
