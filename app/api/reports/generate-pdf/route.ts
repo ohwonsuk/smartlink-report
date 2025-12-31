@@ -1,9 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
 
-// Vercel에서 함수 실행 시간을 최대 60초로 설정
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
@@ -12,163 +10,62 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const supabaseAdmin = createAdminClient();
 
-    // 인증 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // 1. 인증 및 파라미터 확인
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // 프로필 확인 (승인된 사용자만)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_approved, role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!profile?.is_approved && profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // 요청 파라미터
     const { cmnyId, yearMonth } = await request.json();
+    if (!cmnyId || !yearMonth) return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
 
-    if (!cmnyId || !yearMonth) {
-      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
-    }
+    // 2. 고객사 및 파일 정보 준비
+    const { data: company } = await supabase.from('companies').select('cmny_nm').eq('cmny_id', cmnyId).single();
+    if (!company) return NextResponse.json({ error: 'Company not found' }, { status: 404 });
 
-    // 캐시 확인
-    const { data: existingFile } = await supabase
-      .from('report_files')
-      .select('*')
-      .eq('cmny_id', cmnyId)
-      .eq('year_month', yearMonth.replace('-', ''))
-      .eq('file_type', 'pdf')
-      .single();
-
-    // 캐시가 유효하면 URL 반환
-    if (existingFile && existingFile.expires_at) {
-      const expiresAt = new Date(existingFile.expires_at);
-      if (expiresAt > new Date()) {
-        const { data: signedUrl } = await supabase.storage
-          .from('reports')
-          .createSignedUrl(existingFile.storage_path, 60 * 60); // 1시간 유효
-
-        if (signedUrl) {
-          return NextResponse.json({
-            success: true,
-            url: signedUrl.signedUrl,
-            cached: true,
-            fileId: existingFile.file_id,
-          });
-        }
-      }
-    }
-
-    // 고객사 정보 조회
-    const { data: company } = await supabase
-      .from('companies')
-      .select('cmny_nm')
-      .eq('cmny_id', cmnyId)
-      .single();
-
-    if (!company) {
-      return NextResponse.json({ error: 'Company not found' }, { status: 404 });
-    }
-
-    // PDF 생성 - 로컬 환경에서만 지원
-    const isLocal = process.env.NODE_ENV === 'development';
-    
-    if (!isLocal) {
-      return NextResponse.json({ 
-        error: 'PDF generation is only available in local environment',
-        message: 'PDF 생성은 로컬 환경에서만 지원됩니다. 관리자에게 문의하세요.'
-      }, { status: 503 });
-    }
-
-    let browser;
-    try {
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
-      });
-    } catch (launchError) {
-      console.error('Browser launch failed:', launchError);
-      throw new Error(`Failed to launch browser: ${launchError instanceof Error ? launchError.message : String(launchError)}`);
-    }
-
-    const page = await browser.newPage();
-
-    // 리포트 페이지 기본 URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-
-    // 쿠키 전달 (인증 유지)
-    const cookieList = request.cookies.getAll();
-    const domain = new URL(baseUrl).hostname;
-    
-    for (const cookie of cookieList) {
-      await page.setCookie({
-        name: cookie.name,
-        value: cookie.value,
-        domain: domain === 'localhost' ? 'localhost' : domain,
-        path: '/',
-        secure: domain !== 'localhost',
-        sameSite: 'Lax',
-      });
-    }
-
-    // 뷰포트 설정 (가로 방향에 적합하게)
-    await page.setViewport({
-      width: 1200,
-      height: 800,
-      deviceScaleFactor: 2, // 고해상도
-    });
-
-    // 리포트 페이지 URL
-    const reportUrl = `${baseUrl}/report/view?cmny_id=${cmnyId}&year_month=${yearMonth.replace('-', '')}&view=pc`;
-
-    console.log(`Navigating to report URL: ${reportUrl}`);
-
-    // 페이지 로드
-    await page.goto(reportUrl, {
-      waitUntil: 'networkidle0',
-      timeout: 60000,
-    });
-
-    // 특정 요소가 나타날 때까지 대기
-    try {
-      await page.waitForSelector('.bg-white', { timeout: 15000 });
-      // 애니메이션 등이 끝날 때까지 잠시 대기
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    } catch (e) {
-      console.warn('Wait for selector failed, continuing anyway...', e);
-    }
-
-    // PDF 생성 (landscape, 8장 예상)
-    const pdfBuffer = await page.pdf({
-      format: 'a4',
-      landscape: true,
-      printBackground: true,
-      margin: {
-        top: '10mm',
-        right: '10mm',
-        bottom: '10mm',
-        left: '10mm',
-      },
-    });
-
-    await browser.close();
-
-    // 파일명 생성
-    const fileName = `${company.cmny_nm}_${yearMonth}_report.pdf`;
     const sanitizedYearMonth = yearMonth.replace('-', '');
+    const fileName = `${company.cmny_nm}_${yearMonth}_report.pdf`;
     const storagePath = `${cmnyId}/${sanitizedYearMonth}/report.pdf`;
 
-    console.log(`Uploading PDF to storage: ${storagePath}`);
+    // 3. Firebase 전용 서버(또는 로컬)로 PDF 생성 요청
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const reportUrl = `${baseUrl}/report/view?cmny_id=${cmnyId}&year_month=${sanitizedYearMonth}&view=pc`;
+    
+    // 현재 세션 쿠키 추출
+    const cookieList = request.cookies.getAll().map(c => ({
+      name: c.name,
+      value: c.value,
+      domain: new URL(baseUrl).hostname,
+      path: '/'
+    }));
 
-    // Supabase Storage에 업로드 (Admin 클라이언트 사용)
+    let pdfBuffer: Buffer;
+
+    if (process.env.NODE_ENV === 'development') {
+      // 로컬에서는 기존처럼 puppeteer 직접 실행 권장 (속도 및 디버깅)
+      const puppeteer = require('puppeteer');
+      const browser = await puppeteer.launch({ headless: true });
+      const page = await browser.newPage();
+      await page.setCookie(...cookieList);
+      await page.setViewport({ width: 1200, height: 800 });
+      await page.goto(reportUrl, { waitUntil: 'networkidle0' });
+      pdfBuffer = await page.pdf({ format: 'a4', landscape: true, printBackground: true });
+      await browser.close();
+    } else {
+      // 배포 환경: Firebase Cloud Function 호출
+      // 주의: 아래 URL은 Firebase 배포 후 생성되는 URL로 변경이 필요합니다.
+      const FIREBASE_PDF_API = 'https://asia-northeast3-picmoment-dev.cloudfunctions.net/generatePDF';
+      
+      const response = await fetch(FIREBASE_PDF_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: reportUrl, cookies: cookieList })
+      });
+
+      if (!response.ok) throw new Error('Firebase PDF generation failed');
+      const arrayBuffer = await response.arrayBuffer();
+      pdfBuffer = Buffer.from(arrayBuffer);
+    }
+
+    // 4. 생성된 PDF를 Supabase Storage에 업로드
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('reports')
       .upload(storagePath, pdfBuffer, {
@@ -176,75 +73,29 @@ export async function POST(request: NextRequest) {
         upsert: true,
       });
 
-    if (uploadError) {
-      console.error('Upload error details:', {
-        error: uploadError,
-        path: storagePath,
-        bucket: 'reports'
-      });
-      return NextResponse.json({ 
-        error: 'Upload failed', 
-        details: uploadError.message,
-        path: storagePath 
-      }, { status: 500 });
-    }
+    if (uploadError) throw uploadError;
 
-    // report_files 테이블에 기록 (Admin 클라이언트 사용)
+    // 5. DB 기록 및 Signed URL 반환 (기존 로직 동일)
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7일 캐시
+    expiresAt.setDate(expiresAt.getDate() + 7);
 
-    const { data: fileRecord, error: insertError } = await supabaseAdmin
-      .from('report_files')
-      .upsert(
-        {
-          cmny_id: cmnyId,
-          year_month: sanitizedYearMonth,
-          file_type: 'pdf',
-          file_name: fileName,
-          storage_path: uploadData.path,
-          file_size: pdfBuffer.length,
-          generated_at: new Date().toISOString(),
-          expires_at: expiresAt.toISOString(),
-        },
-        {
-          onConflict: 'cmny_id,year_month,file_type',
-        },
-      )
-      .select()
-      .single();
+    await supabaseAdmin.from('report_files').upsert({
+      cmny_id: cmnyId,
+      year_month: sanitizedYearMonth,
+      file_type: 'pdf',
+      file_name: fileName,
+      storage_path: uploadData.path,
+      file_size: pdfBuffer.length,
+      generated_at: new Date().toISOString(),
+      expires_at: expiresAt.toISOString(),
+    }, { onConflict: 'cmny_id,year_month,file_type' });
 
-    if (insertError) {
-      console.error('Insert error record details:', {
-        error: insertError,
-        data: {
-          cmny_id: cmnyId,
-          year_month: sanitizedYearMonth,
-          file_name: fileName
-        }
-      });
-    }
+    const { data: signedUrl } = await supabase.storage.from('reports').createSignedUrl(uploadData.path, 3600);
 
-    // Signed URL 생성
-    const { data: signedUrl } = await supabase.storage
-      .from('reports')
-      .createSignedUrl(uploadData.path, 60 * 60); // 1시간 유효
+    return NextResponse.json({ success: true, url: signedUrl?.signedUrl, fileName });
 
-    if (!signedUrl) {
-      return NextResponse.json({ error: 'Failed to create signed URL' }, { status: 500 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      url: signedUrl.signedUrl,
-      cached: false,
-      fileId: fileRecord?.file_id,
-      fileName,
-    });
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 },
-    );
+  } catch (error: any) {
+    console.error('PDF error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
