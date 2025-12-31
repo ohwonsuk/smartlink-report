@@ -1,5 +1,7 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
+
 type Accident = {
   department: string | null;
   driver_name: string;
@@ -32,7 +34,7 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
         {/* 헤더 */}
         <div className="mb-6 flex items-center justify-between border-b pb-4">
           <div className="flex items-center space-x-3">
-            <span className="text-2xl">⚠️</span>
+            <AlertTriangle className="w-6 h-6 text-indigo-600" />
             <h2 className="text-xl font-bold text-gray-900">사고내역</h2>
           </div>
           <div className="text-sm text-gray-600">

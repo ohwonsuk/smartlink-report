@@ -19,6 +19,7 @@ export default function ReportPage() {
   const [viewMode, setViewMode] = useState<'pc' | 'mobile'>('pc');
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [favoritesRefresh, setFavoritesRefresh] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // 전월을 기본값으로 설정
   useEffect(() => {
@@ -96,13 +97,54 @@ export default function ReportPage() {
     window.location.href = url;
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!selectedCompany || !selectedDate) {
       alert('고객사와 날짜를 선택해주세요.');
       return;
     }
-    // Phase 7에서 구현
-    alert(`PDF 다운로드: ${selectedCompany.cmny_nm} (${selectedDate})`);
+
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch('/api/reports/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cmnyId: selectedCompany.cmny_id,
+          yearMonth: selectedDate,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage = data.details ? `${data.error}: ${data.details}` : (data.error || 'PDF 생성 실패');
+        throw new Error(errorMessage);
+      }
+
+      if (data.success && data.url) {
+        // PDF 다운로드
+        const link = document.createElement('a');
+        link.href = data.url;
+        link.download = data.fileName || 'report.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        if (data.cached) {
+          alert('캐시된 PDF를 다운로드합니다.');
+        } else {
+          alert('PDF가 생성되었습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('PDF 다운로드 오류:', error);
+      alert(error instanceof Error ? error.message : 'PDF 다운로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -193,17 +235,17 @@ export default function ReportPage() {
           <div className="flex space-x-4">
             <button
               onClick={handleViewReport}
-              disabled={!selectedCompany || !selectedDate}
+              disabled={!selectedCompany || !selectedDate || isGenerating}
               className="flex-1 rounded-md bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               웹화면 보기
             </button>
             <button
               onClick={handleDownloadPDF}
-              disabled={!selectedCompany || !selectedDate}
+              disabled={!selectedCompany || !selectedDate || isGenerating}
               className="flex-1 rounded-md bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              PDF 다운로드
+              {isGenerating ? 'PDF 생성 중...' : 'PDF 다운로드'}
             </button>
           </div>
         </div>

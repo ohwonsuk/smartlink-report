@@ -25,15 +25,43 @@ export async function POST(request: NextRequest) {
     const fileName = `${company.cmny_nm}_${yearMonth}_report.pdf`;
     const storagePath = `${cmnyId}/${sanitizedYearMonth}/report.pdf`;
 
+    // 2.5 캐시 확인
+    const { data: existingFile } = await supabase
+      .from('report_files')
+      .select('*')
+      .eq('cmny_id', cmnyId)
+      .eq('year_month', sanitizedYearMonth)
+      .eq('file_type', 'pdf')
+      .single();
+
+    if (existingFile && existingFile.expires_at) {
+      const expiresAt = new Date(existingFile.expires_at);
+      if (expiresAt > new Date()) {
+        const { data: signedUrl } = await supabase.storage
+          .from('reports')
+          .createSignedUrl(existingFile.storage_path, 3600, {
+            download: fileName
+          });
+
+        if (signedUrl) {
+          return NextResponse.json({
+            success: true,
+            url: signedUrl.signedUrl,
+            cached: true,
+            fileId: existingFile.file_id,
+            fileName: fileName,
+          });
+        }
+      }
+    }
+
     // 3. Firebase 전용 서버(또는 로컬)로 PDF 생성 요청
-    // 요청 헤더에서 호스트 주소를 추출하여 baseUrl 설정
     const protocol = request.headers.get('x-forwarded-proto') || 'http';
     const host = request.headers.get('host');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
     
     const reportUrl = `${baseUrl}/report/view?cmny_id=${cmnyId}&year_month=${sanitizedYearMonth}&view=pc`;
     
-    // 현재 세션 쿠키 추출
     const cookieList = request.cookies.getAll().map(c => ({
       name: c.name,
       value: c.value,
@@ -44,7 +72,6 @@ export async function POST(request: NextRequest) {
     let pdfBuffer: Buffer;
 
     if (process.env.NODE_ENV === 'development') {
-      // 로컬에서는 기존처럼 puppeteer 직접 실행 권장 (속도 및 디버깅)
       const puppeteer = require('puppeteer');
       const browser = await puppeteer.launch({ headless: true });
       const page = await browser.newPage();
@@ -54,11 +81,8 @@ export async function POST(request: NextRequest) {
       pdfBuffer = await page.pdf({ format: 'a4', landscape: true, printBackground: true });
       await browser.close();
     } else {
-      // 배포 환경: Firebase Cloud Function 호출
       const FIREBASE_PDF_API = 'https://asia-northeast3-picmoment-dev.cloudfunctions.net/generatePDF';
       
-      console.log(`Calling Firebase PDF API for URL: ${reportUrl}`);
-
       const response = await fetch(FIREBASE_PDF_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,25 +91,18 @@ export async function POST(request: NextRequest) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Firebase Error Response:', errorText);
-        throw new Error(`Firebase PDF generation failed: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Firebase PDF generation failed: ${response.status} - ${errorText}`);
       }
       
       const arrayBuffer = await response.arrayBuffer();
       pdfBuffer = Buffer.from(arrayBuffer);
 
-      // PDF 헤더 검증 (%PDF- 로 시작해야 함)
-      const header = pdfBuffer.toString('utf8', 0, 5);
-      console.log(`Received PDF from Firebase. Size: ${pdfBuffer.length} bytes, Header: ${header}`);
-
-      if (header !== '%PDF-') {
-        const preview = pdfBuffer.toString('utf8', 0, 100);
-        console.error('Invalid PDF format received:', preview);
-        throw new Error('Received invalid PDF format from generator. The response might be an error page or a corrupted file.');
+      if (pdfBuffer.toString('utf8', 0, 5) !== '%PDF-') {
+        throw new Error('Received invalid PDF format from generator.');
       }
     }
 
-    // 4. 생성된 PDF를 Supabase Storage에 업로드
+    // 4. 업로드
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('reports')
       .upload(storagePath, pdfBuffer, {
@@ -95,11 +112,11 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) throw uploadError;
 
-    // 5. DB 기록 및 Signed URL 반환 (기존 로직 동일)
+    // 5. DB 기록
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await supabaseAdmin.from('report_files').upsert({
+    const { data: fileRecord } = await supabaseAdmin.from('report_files').upsert({
       cmny_id: cmnyId,
       year_month: sanitizedYearMonth,
       file_type: 'pdf',
@@ -108,11 +125,13 @@ export async function POST(request: NextRequest) {
       file_size: pdfBuffer.length,
       generated_at: new Date().toISOString(),
       expires_at: expiresAt.toISOString(),
-    }, { onConflict: 'cmny_id,year_month,file_type' });
+    }, { onConflict: 'cmny_id,year_month,file_type' }).select().single();
 
-    const { data: signedUrl } = await supabase.storage.from('reports').createSignedUrl(uploadData.path, 3600);
+    const { data: signedUrl } = await supabase.storage.from('reports').createSignedUrl(uploadData.path, 3600, {
+      download: fileName
+    });
 
-    return NextResponse.json({ success: true, url: signedUrl?.signedUrl, fileName });
+    return NextResponse.json({ success: true, url: signedUrl?.signedUrl, fileName, cached: false });
 
   } catch (error: any) {
     console.error('PDF error:', error);

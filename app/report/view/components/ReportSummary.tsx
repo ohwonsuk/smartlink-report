@@ -1,5 +1,7 @@
 'use client';
 
+import { Car, MapPin, FileText, ShieldCheck, Zap, Wrench, AlertTriangle, Coins, TrendingUp, TrendingDown } from 'lucide-react';
+
 type Company = {
   cmny_id: number;
   cmny_nm: string;
@@ -84,7 +86,7 @@ export default function ReportSummary({
     {
       title: '대상 차량',
       unit: '대',
-      icon: '🚗',
+      icon: <Car className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.vehicle_count,
       previousValue: previousSummary?.vehicle_count,
       data: null, // 3개월 데이터 제외
@@ -96,7 +98,7 @@ export default function ReportSummary({
     {
       title: '월 총 주행거리',
       unit: 'km',
-      icon: '📍',
+      icon: <MapPin className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.total_mileage_km,
       previousValue: previousSummary?.total_mileage_km,
       data: formatMonthData('total_mileage_km'),
@@ -105,7 +107,7 @@ export default function ReportSummary({
     {
       title: '운행일지 생성대수',
       unit: '대',
-      icon: '📝',
+      icon: <FileText className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.trip_log_vehicle_count,
       previousValue: previousSummary?.trip_log_vehicle_count,
       data: formatMonthData('trip_log_vehicle_count'),
@@ -114,7 +116,7 @@ export default function ReportSummary({
     {
       title: '평균 안전점수',
       unit: '점',
-      icon: '🛡️',
+      icon: <ShieldCheck className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.avg_safe_score || 0,
       previousValue: previousSummary?.avg_safe_score,
       data: formatMonthData('avg_safe_score'),
@@ -126,13 +128,13 @@ export default function ReportSummary({
   const row2Cards = [
     {
       title: '가동률 Top 5',
-      icon: '⚡',
+      icon: <Zap className="w-6 h-6 text-indigo-600" />,
       isTopVehicles: true,
     },
     {
       title: '정비 현황',
       unit: '건',
-      icon: '🔧',
+      icon: <Wrench className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.maintenance_completed_count,
       previousValue: previousSummary?.maintenance_completed_count,
       data: formatMonthData('maintenance_completed_count'),
@@ -141,7 +143,7 @@ export default function ReportSummary({
     {
       title: '사고 내역',
       unit: '건',
-      icon: '⚠️',
+      icon: <AlertTriangle className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.accident_count,
       previousValue: previousSummary?.accident_count,
       data: formatMonthData('accident_count'),
@@ -150,7 +152,7 @@ export default function ReportSummary({
     {
       title: '범칙금',
       unit: '원',
-      icon: '💰',
+      icon: <Coins className="w-6 h-6 text-indigo-600" />,
       currentValue: currentSummary.violation_amount,
       previousValue: previousSummary?.violation_amount,
       data: formatMonthData('violation_amount'),
@@ -332,7 +334,7 @@ function renderChange(
 
   return (
     <div
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
         isPositive
           ? 'bg-green-100 text-green-800'
           : isNegative
@@ -340,7 +342,12 @@ function renderChange(
             : 'bg-gray-100 text-gray-800'
       }`}
     >
-      {isPositive ? '↑' : '↓'} {Math.abs(parseFloat(diffPercent))}%
+      {isPositive ? (
+        <TrendingUp className="mr-0.5 h-3 w-3" />
+      ) : (
+        <TrendingDown className="mr-0.5 h-3 w-3" />
+      )}
+      {Math.abs(parseFloat(diffPercent))}%
       {!compact && (
         <span className="ml-1">
           ({isPositive ? '+' : ''}

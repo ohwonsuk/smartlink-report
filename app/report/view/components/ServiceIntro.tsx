@@ -1,5 +1,7 @@
 'use client';
 
+import { Fuel, Navigation, ShieldCheck, TrendingDown } from 'lucide-react';
+
 type ServiceIntroProps = {
   viewMode?: 'pc' | 'mobile';
 };
@@ -7,25 +9,25 @@ type ServiceIntroProps = {
 export default function ServiceIntro({ viewMode = 'pc' }: ServiceIntroProps) {
   const savingsData = [
     {
-      icon: '⛽',
+      icon: <Fuel className="w-6 h-6 text-indigo-600" />,
       percent: '20%',
       label: '유류비 절감',
       sublabel: '(도심비 적정)',
     },
     {
-      icon: '🛣️',
+      icon: <Navigation className="w-6 h-6 text-indigo-600" />,
       percent: '15%',
       label: '통행료 절감',
       sublabel: '',
     },
     {
-      icon: '🚗',
+      icon: <ShieldCheck className="w-6 h-6 text-indigo-600" />,
       percent: '11%',
       label: '사고율 감소',
       sublabel: '',
     },
     {
-      icon: '🚙',
+      icon: <TrendingDown className="w-6 h-6 text-indigo-600" />,
       percent: '20%',
       label: '운행차량 절감',
       sublabel: '',
