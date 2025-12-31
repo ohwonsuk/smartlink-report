@@ -4,6 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
+// Vercel에서 함수 실행 시간을 최대 60초로 설정 (Hobby 플랜 최대치)
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -77,21 +81,30 @@ export async function POST(request: NextRequest) {
 
     // PDF 생성 설정
     let browser;
-    const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 
-    if (isProd) {
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
-    } else {
-      browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
-        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        headless: true,
-      });
+    try {
+      if (isProd) {
+        // Vercel/Production 환경
+        browser = await puppeteer.launch({
+          args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless === 'shell' ? 'shell' : true,
+        });
+      } else {
+        // Local 환경
+        browser = await puppeteer.launch({
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
+          executablePath: process.platform === 'darwin' 
+            ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+            : undefined, // 시스템 기본 크롬 사용 시도
+          headless: true,
+        });
+      }
+    } catch (launchError) {
+      console.error('Browser launch failed:', launchError);
+      throw new Error(`Failed to launch browser: ${launchError instanceof Error ? launchError.message : String(launchError)}`);
     }
 
     const page = await browser.newPage();
