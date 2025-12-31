@@ -57,15 +57,15 @@ export default function ServiceIntro({ viewMode = 'pc' }: ServiceIntroProps) {
       }>
         {/* 좌측: 도입 효과 타이틀 */}
         <div className={viewMode === 'pc'
-          ? "flex flex-col justify-center bg-blue-100/50 p-3 rounded-lg min-w-[140px] text-center"
+          ? "flex flex-col justify-center bg-blue-100/50 p-2 rounded-lg min-w-[150px] text-center"
           : "flex flex-col justify-center bg-blue-100/50 p-4 lg:p-3 rounded-lg lg:min-w-[140px] text-center"
         }>
           <h3 className={viewMode === 'pc'
-            ? "text-sm font-bold text-gray-800 leading-tight"
+            ? "text-[12px] font-bold text-gray-800 leading-[1.3]"
             : "text-sm sm:text-base lg:text-sm font-bold text-gray-800 leading-tight"
           }>
-            스마트링크 도입<br className={viewMode === 'mobile' ? "hidden lg:block" : ""} /> 고객사의
-            <span className={viewMode === 'pc' ? "text-indigo-600" : "block lg:inline-block lg:mt-1 text-indigo-600"}>비용절감 효과!!</span>
+            <span className="whitespace-nowrap">스마트링크 도입</span><br className={viewMode === 'mobile' ? "hidden lg:block" : ""} /> <span className="whitespace-nowrap">고객사의</span>
+            <span className={viewMode === 'pc' ? "text-indigo-600 whitespace-nowrap block mt-0.5" : "block lg:inline-block lg:mt-1 text-indigo-600"}>비용절감 효과!!</span>
           </h3>
         </div>
 
@@ -84,7 +84,7 @@ export default function ServiceIntro({ viewMode = 'pc' }: ServiceIntroProps) {
             >
               <div className={viewMode === 'pc' ? "mb-1 text-2xl" : "mb-1 text-2xl lg:text-xl"}>{item.icon}</div>
               <div className={viewMode === 'pc' ? "mb-0.5 text-lg font-bold text-indigo-600 leading-none" : "mb-0.5 text-xl lg:text-lg font-bold text-indigo-600 leading-none"}>{item.percent}</div>
-              <div className={viewMode === 'pc' ? "text-[10px] font-semibold text-gray-700 leading-tight" : "text-xs lg:text-[10px] font-semibold text-gray-700 leading-tight"}>{item.label}</div>
+              <div className={viewMode === 'pc' ? "text-[10px] font-semibold text-gray-700 leading-tight whitespace-nowrap" : "text-xs lg:text-[10px] font-semibold text-gray-700 leading-tight whitespace-nowrap"}>{item.label}</div>
               {item.sublabel && <div className={viewMode === 'pc' ? "text-[8px] text-gray-400 scale-90" : "text-[10px] lg:text-[8px] text-gray-400 scale-90"}>{item.sublabel}</div>}
             </div>
           ))}

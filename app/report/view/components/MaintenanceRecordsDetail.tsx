@@ -49,7 +49,7 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between border-b pb-4">
         <div className="flex items-center space-x-3">
-          <span className="text-2xl">🔧</span>
+          <Wrench className="w-6 h-6 text-indigo-600" />
           <h2 className="text-xl font-bold text-gray-900">정비현황</h2>
         </div>
         <div className="text-sm text-gray-600">
