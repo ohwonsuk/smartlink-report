@@ -26,7 +26,11 @@ export async function POST(request: NextRequest) {
     const storagePath = `${cmnyId}/${sanitizedYearMonth}/report.pdf`;
 
     // 3. Firebase 전용 서버(또는 로컬)로 PDF 생성 요청
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // 요청 헤더에서 호스트 주소를 추출하여 baseUrl 설정
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const host = request.headers.get('host');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+    
     const reportUrl = `${baseUrl}/report/view?cmny_id=${cmnyId}&year_month=${sanitizedYearMonth}&view=pc`;
     
     // 현재 세션 쿠키 추출
@@ -51,16 +55,22 @@ export async function POST(request: NextRequest) {
       await browser.close();
     } else {
       // 배포 환경: Firebase Cloud Function 호출
-      // 주의: 아래 URL은 Firebase 배포 후 생성되는 URL로 변경이 필요합니다.
       const FIREBASE_PDF_API = 'https://asia-northeast3-picmoment-dev.cloudfunctions.net/generatePDF';
       
+      console.log(`Calling Firebase PDF API for URL: ${reportUrl}`);
+
       const response = await fetch(FIREBASE_PDF_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: reportUrl, cookies: cookieList })
       });
 
-      if (!response.ok) throw new Error('Firebase PDF generation failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Firebase Error Response:', errorText);
+        throw new Error(`Firebase PDF generation failed: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+      
       const arrayBuffer = await response.arrayBuffer();
       pdfBuffer = Buffer.from(arrayBuffer);
     }
