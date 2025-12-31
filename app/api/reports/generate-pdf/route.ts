@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
-import chromium from 'chrome-aws-lambda';
+import chromium from '@sparticuz/chromium';
 
 // Vercel에서 함수 실행 시간을 최대 60초로 설정 (Hobby 플랜 최대치)
 export const maxDuration = 60;
@@ -85,12 +85,12 @@ export async function POST(request: NextRequest) {
 
     try {
       if (isProd) {
-        // Vercel/Production 환경 - chrome-aws-lambda 사용
-        browser = await chromium.puppeteer.launch({
+        // Vercel/Production 환경 - @sparticuz/chromium 사용
+        browser = await puppeteer.launch({
           args: chromium.args,
           defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath,
-          headless: chromium.headless,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless === 'shell' ? true : chromium.headless,
         });
       } else {
         // Local 환경
