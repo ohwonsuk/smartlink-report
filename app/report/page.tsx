@@ -109,7 +109,7 @@ export default function ReportPage() {
     <div className="space-y-8">
       {/* 페이지 헤더 */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">월간 리포트 조회</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">월간 리포트 조회</h2>
         <p className="mt-2 text-sm text-gray-600">
           고객사를 선택하고 조회할 월을 선택하세요. 즐겨찾기에서 빠르게 접근할 수도 있습니다.
         </p>

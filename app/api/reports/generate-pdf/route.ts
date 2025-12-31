@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,11 +75,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 });
     }
 
-    // PDF 생성
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
-    });
+    // PDF 생성 설정
+    let browser;
+    const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+
+    if (isProd) {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
+        executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        headless: true,
+      });
+    }
 
     const page = await browser.newPage();
 
@@ -115,14 +129,14 @@ export async function POST(request: NextRequest) {
     // 페이지 로드
     await page.goto(reportUrl, {
       waitUntil: 'networkidle0',
-      timeout: 45000, // 조금 더 넉넉하게
+      timeout: 60000, // Vercel 상에서는 조금 더 늘림
     });
 
     // 특정 요소가 나타날 때까지 대기 (예: 차트나 테이블)
     try {
-      await page.waitForSelector('.bg-white', { timeout: 10000 });
+      await page.waitForSelector('.bg-white', { timeout: 15000 });
       // 애니메이션 등이 끝날 때까지 잠시 대기
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (e) {
       console.warn('Wait for selector failed, continuing anyway...', e);
     }
@@ -230,4 +244,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
