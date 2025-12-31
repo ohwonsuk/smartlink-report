@@ -1,10 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer';
 
-// Vercel에서 함수 실행 시간을 최대 60초로 설정 (Hobby 플랜 최대치)
+// Vercel에서 함수 실행 시간을 최대 60초로 설정
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
@@ -79,29 +78,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 });
     }
 
-    // PDF 생성 설정
-    let browser;
-    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    // PDF 생성 - 로컬 환경에서만 지원
+    const isLocal = process.env.NODE_ENV === 'development';
+    
+    if (!isLocal) {
+      return NextResponse.json({ 
+        error: 'PDF generation is only available in local environment',
+        message: 'PDF 생성은 로컬 환경에서만 지원됩니다. 관리자에게 문의하세요.'
+      }, { status: 503 });
+    }
 
+    let browser;
     try {
-      if (isProd) {
-        // Vercel/Production 환경 - @sparticuz/chromium 사용
-        browser = await puppeteer.launch({
-          args: chromium.args,
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath(),
-          headless: chromium.headless === 'shell' ? true : chromium.headless,
-        });
-      } else {
-        // Local 환경
-        browser = await puppeteer.launch({
-          args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
-          executablePath: process.platform === 'darwin' 
-            ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-            : undefined, // 시스템 기본 크롬 사용 시도
-          headless: true,
-        });
-      }
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1200,800'],
+      });
     } catch (launchError) {
       console.error('Browser launch failed:', launchError);
       throw new Error(`Failed to launch browser: ${launchError instanceof Error ? launchError.message : String(launchError)}`);
@@ -134,7 +126,7 @@ export async function POST(request: NextRequest) {
       deviceScaleFactor: 2, // 고해상도
     });
 
-    // 리포트 페이지 URL (localhost 또는 실제 도메인)
+    // 리포트 페이지 URL
     const reportUrl = `${baseUrl}/report/view?cmny_id=${cmnyId}&year_month=${yearMonth.replace('-', '')}&view=pc`;
 
     console.log(`Navigating to report URL: ${reportUrl}`);
@@ -142,10 +134,10 @@ export async function POST(request: NextRequest) {
     // 페이지 로드
     await page.goto(reportUrl, {
       waitUntil: 'networkidle0',
-      timeout: 60000, // Vercel 상에서는 조금 더 늘림
+      timeout: 60000,
     });
 
-    // 특정 요소가 나타날 때까지 대기 (예: 차트나 테이블)
+    // 특정 요소가 나타날 때까지 대기
     try {
       await page.waitForSelector('.bg-white', { timeout: 15000 });
       // 애니메이션 등이 끝날 때까지 잠시 대기
@@ -171,7 +163,6 @@ export async function POST(request: NextRequest) {
 
     // 파일명 생성
     const fileName = `${company.cmny_nm}_${yearMonth}_report.pdf`;
-    // Storage 경로는 ASCII로 통일 (한글 포함 시 오류 가능성 및 일관성)
     const sanitizedYearMonth = yearMonth.replace('-', '');
     const storagePath = `${cmnyId}/${sanitizedYearMonth}/report.pdf`;
 
