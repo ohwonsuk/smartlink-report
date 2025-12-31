@@ -1,6 +1,10 @@
 'use client';
 
-export default function ServiceIntro() {
+type ServiceIntroProps = {
+  viewMode?: 'pc' | 'mobile';
+};
+
+export default function ServiceIntro({ viewMode = 'pc' }: ServiceIntroProps) {
   const savingsData = [
     {
       icon: '⛽',
@@ -44,47 +48,77 @@ export default function ServiceIntro() {
         </h2>
       </div>
 
-      {/* 메인 컨텐츠 영역 - 반응형 대응 (모바일 세로, PC 가로) */}
-      <div className="flex flex-col lg:flex-row items-stretch justify-between gap-4">
+      {/* 메인 컨텐츠 영역 - PC 모드에서는 항상 가로, Mobile 모드에서만 반응형 */}
+      <div className={viewMode === 'pc' 
+        ? "flex items-stretch justify-between gap-4"
+        : "flex flex-col lg:flex-row items-stretch justify-between gap-4"
+      }>
         {/* 좌측: 도입 효과 타이틀 */}
-        <div className="flex flex-col justify-center bg-blue-100/50 p-4 lg:p-3 rounded-lg lg:min-w-[140px] text-center">
-          <h3 className="text-sm sm:text-base lg:text-sm font-bold text-gray-800 leading-tight">
-            스마트링크 도입<br className="hidden lg:block" /> 고객사의
-            <span className="block lg:inline-block lg:mt-1 text-indigo-600">비용절감 효과!!</span>
+        <div className={viewMode === 'pc'
+          ? "flex flex-col justify-center bg-blue-100/50 p-3 rounded-lg min-w-[140px] text-center"
+          : "flex flex-col justify-center bg-blue-100/50 p-4 lg:p-3 rounded-lg lg:min-w-[140px] text-center"
+        }>
+          <h3 className={viewMode === 'pc'
+            ? "text-sm font-bold text-gray-800 leading-tight"
+            : "text-sm sm:text-base lg:text-sm font-bold text-gray-800 leading-tight"
+          }>
+            스마트링크 도입<br className={viewMode === 'mobile' ? "hidden lg:block" : ""} /> 고객사의
+            <span className={viewMode === 'pc' ? "text-indigo-600" : "block lg:inline-block lg:mt-1 text-indigo-600"}>비용절감 효과!!</span>
           </h3>
         </div>
 
-        {/* 중앙: 절감 효과 4개 - 모바일 2x2, PC 1x4 */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 sm:flex-1 lg:flex lg:justify-between gap-2">
+        {/* 중앙: 절감 효과 4개 - PC는 항상 1x4, Mobile은 2x2 */}
+        <div className={viewMode === 'pc'
+          ? "flex-1 flex justify-between gap-2"
+          : "grid grid-cols-2 sm:grid-cols-4 sm:flex-1 lg:flex lg:justify-between gap-2"
+        }>
           {savingsData.map((item, index) => (
             <div
               key={index}
-              className="flex flex-col items-center justify-center rounded-lg bg-white p-3 lg:p-2 shadow-sm border border-gray-100"
+              className={viewMode === 'pc'
+                ? "flex-1 flex flex-col items-center justify-center rounded-lg bg-white p-2 shadow-sm border border-gray-100"
+                : "flex flex-col items-center justify-center rounded-lg bg-white p-3 lg:p-2 shadow-sm border border-gray-100"
+              }
             >
-              <div className="mb-1 text-2xl lg:text-xl">{item.icon}</div>
-              <div className="mb-0.5 text-xl lg:text-lg font-bold text-indigo-600 leading-none">{item.percent}</div>
-              <div className="text-xs lg:text-[10px] font-semibold text-gray-700 leading-tight">{item.label}</div>
-              {item.sublabel && <div className="text-[10px] lg:text-[8px] text-gray-400 scale-90">{item.sublabel}</div>}
+              <div className={viewMode === 'pc' ? "mb-1 text-2xl" : "mb-1 text-2xl lg:text-xl"}>{item.icon}</div>
+              <div className={viewMode === 'pc' ? "mb-0.5 text-lg font-bold text-indigo-600 leading-none" : "mb-0.5 text-xl lg:text-lg font-bold text-indigo-600 leading-none"}>{item.percent}</div>
+              <div className={viewMode === 'pc' ? "text-[10px] font-semibold text-gray-700 leading-tight" : "text-xs lg:text-[10px] font-semibold text-gray-700 leading-tight"}>{item.label}</div>
+              {item.sublabel && <div className={viewMode === 'pc' ? "text-[8px] text-gray-400 scale-90" : "text-[10px] lg:text-[8px] text-gray-400 scale-90"}>{item.sublabel}</div>}
             </div>
           ))}
         </div>
 
-        {/* 우측: SK렌터카 서비스 - 반응형 세로/가로 */}
-        <div className="flex-1 lg:flex-[1.5] flex flex-col sm:flex-row bg-white rounded-lg p-2 shadow-sm border border-gray-100 items-center">
-          <div className="w-full sm:w-auto px-3 py-2 sm:py-0 border-b sm:border-b-0 sm:border-r border-gray-100 sm:border-gray-200 sm:min-w-[120px] text-center">
-            <h3 className="text-xs sm:text-sm lg:text-xs font-bold text-gray-800 leading-tight">
+        {/* 우측: SK렌터카 서비스 - PC는 가로, Mobile은 반응형 */}
+        <div className={viewMode === 'pc'
+          ? "flex-[1.5] flex bg-white rounded-lg p-2 shadow-sm border border-gray-100 items-center"
+          : "flex-1 lg:flex-[1.5] flex flex-col sm:flex-row bg-white rounded-lg p-2 shadow-sm border border-gray-100 items-center"
+        }>
+          <div className={viewMode === 'pc'
+            ? "px-3 border-r border-gray-200 min-w-[120px] text-center"
+            : "w-full sm:w-auto px-3 py-2 sm:py-0 border-b sm:border-b-0 sm:border-r border-gray-100 sm:border-gray-200 sm:min-w-[120px] text-center"
+          }>
+            <h3 className={viewMode === 'pc'
+              ? "text-xs font-bold text-gray-800 leading-tight"
+              : "text-xs sm:text-sm lg:text-xs font-bold text-gray-800 leading-tight"
+            }>
               SK렌터카 사용 시<br />
               <span className="text-indigo-600">주요 4대서비스</span><br />
               <span className="text-red-500 text-[10px]">무료제공!!</span>
             </h3>
           </div>
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 sm:gap-y-1 p-3 lg:pl-3 lg:py-0">
+          <div className={viewMode === 'pc'
+            ? "flex-1 grid grid-cols-2 gap-x-3 gap-y-1 pl-3"
+            : "flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 sm:gap-y-1 p-3 lg:pl-3 lg:py-0"
+          }>
             {services.map((service, index) => (
               <div key={index} className="flex items-start">
-                <span className="mr-2 sm:mr-1.5 flex h-4 w-4 sm:h-3.5 sm:w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[10px] sm:text-[8px] font-bold text-white mt-0.5">
+                <span className={viewMode === 'pc'
+                  ? "mr-1.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[8px] font-bold text-white mt-0.5"
+                  : "mr-2 sm:mr-1.5 flex h-4 w-4 sm:h-3.5 sm:w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[10px] sm:text-[8px] font-bold text-white mt-0.5"
+                }>
                   {index + 1}
                 </span>
-                <p className="text-[10px] lg:text-[9px] leading-tight text-gray-700">{service}</p>
+                <p className={viewMode === 'pc' ? "text-[9px] leading-tight text-gray-700" : "text-[10px] lg:text-[9px] leading-tight text-gray-700"}>{service}</p>
               </div>
             ))}
           </div>

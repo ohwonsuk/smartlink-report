@@ -57,7 +57,7 @@ export default function ReportViewClient({
           viewMode={viewMode}
         />
         <div className="mt-8 service-intro-container text-center">
-          <ServiceIntro />
+          <ServiceIntro viewMode={viewMode} />
         </div>
         <div className="page-break" />
       </div>

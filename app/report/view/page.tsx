@@ -195,18 +195,32 @@ export default async function ReportViewPage({
         <div
           className={`mx-auto ${viewMode === 'pc' ? 'max-w-[1200px]' : 'max-w-full'} px-6 py-4`}
         >
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-y-2">
+          <div className={viewMode === 'pc' 
+            ? "flex items-center justify-between" 
+            : "flex flex-col sm:flex-row items-center justify-between gap-y-2"
+          }>
             {/* 좌: 고객사명 (요약 페이지에만 표시) */}
-            <div className="text-base sm:text-lg font-bold text-gray-900 text-center sm:text-left">{company.cmny_nm}</div>
+            <div className={viewMode === 'pc'
+              ? "text-lg font-bold text-gray-900"
+              : "text-base sm:text-lg font-bold text-gray-900 text-center sm:text-left"
+            }>
+              {company.cmny_nm}
+            </div>
 
             {/* 중앙: Monthly Report - YY년MM월 */}
-            <div className="text-lg sm:text-xl font-bold text-gray-900 text-center">
+            <div className={viewMode === 'pc'
+              ? "text-center text-xl font-bold text-gray-900"
+              : "text-lg sm:text-xl font-bold text-gray-900 text-center"
+            }>
               Monthly Report - {formatYearMonth(currentYearMonth)}
             </div>
 
             {/* 우: 서비스 제공업체 로고 */}
-            <div className="flex items-center justify-center sm:justify-end">
-              <img src="/logo.svg" alt="SK렌터카" className="h-5 sm:h-6 w-auto" />
+            <div className={viewMode === 'pc'
+              ? "flex items-center"
+              : "flex items-center justify-center sm:justify-end"
+            }>
+              <img src="/logo.svg" alt="SK렌터카" className={viewMode === 'pc' ? "h-6 w-auto" : "h-5 sm:h-6 w-auto"} />
             </div>
           </div>
         </div>
