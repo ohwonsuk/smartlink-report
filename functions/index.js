@@ -75,9 +75,15 @@ exports.generatePDF = functions
         }
       });
 
-      console.log("PDF generation successful");
-      res.set("Content-Type", "application/pdf");
-      res.send(pdf);
+      console.log("PDF generation successful. Buffer size:", pdf.length);
+      
+      res.status(200);
+      res.set({
+        "Content-Type": "application/pdf",
+        "Content-Length": pdf.length,
+        "Cache-Control": "no-cache",
+      });
+      res.end(pdf);
     } catch (error) {
       console.error("PDF generation error:", error);
       res.status(500).send(error.toString());

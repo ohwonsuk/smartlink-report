@@ -73,6 +73,16 @@ export async function POST(request: NextRequest) {
       
       const arrayBuffer = await response.arrayBuffer();
       pdfBuffer = Buffer.from(arrayBuffer);
+
+      // PDF 헤더 검증 (%PDF- 로 시작해야 함)
+      const header = pdfBuffer.toString('utf8', 0, 5);
+      console.log(`Received PDF from Firebase. Size: ${pdfBuffer.length} bytes, Header: ${header}`);
+
+      if (header !== '%PDF-') {
+        const preview = pdfBuffer.toString('utf8', 0, 100);
+        console.error('Invalid PDF format received:', preview);
+        throw new Error('Received invalid PDF format from generator. The response might be an error page or a corrupted file.');
+      }
     }
 
     // 4. 생성된 PDF를 Supabase Storage에 업로드
