@@ -103,10 +103,17 @@ ORDER BY c.cmny_nm, ms.year_month;
 ### 3.1 평균 가동률 계산 (8시간 기준)
 
 ```typescript
-const calculateUtilization = (drivingMinutes: number, vehicleCount: number) => {
-  if (vehicleCount === 0) return 0;
-  // 24시간 기준 가동률
-  const utilization24h = (drivingMinutes / (vehicleCount * 24 * 60)) * 100;
+const calculateUtilization = (drivingMinutes: number, vehicleCount: number, yearMonth: string) => {
+  if (vehicleCount === 0 || !yearMonth) return 0;
+  
+  // 월별 일수 계산 (해당 월의 마지막 날짜 구하기)
+  const year = parseInt(yearMonth.substring(0, 4));
+  const month = parseInt(yearMonth.substring(4, 6));
+  const daysInMonth = new Date(year, month, 0).getDate();
+  
+  // 24시간 기준 가동률 = (분) / (대수 * 24시간 * 60분 * 해당월일수) * 100
+  const utilization24h = (drivingMinutes / (vehicleCount * 24 * 60 * daysInMonth)) * 100;
+  
   // 8시간 기준으로 환산 (×3)
   return utilization24h * 3;
 };

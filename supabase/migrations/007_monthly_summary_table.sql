@@ -85,5 +85,19 @@ CREATE TRIGGER set_monthly_summary_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at();
 
+-- monthly_summary 테이블의 NOT NULL 제약 조건 해제
+ALTER TABLE public.monthly_summary 
+  ALTER COLUMN vehicle_count DROP NOT NULL,
+  ALTER COLUMN total_mileage_km DROP NOT NULL,
+  ALTER COLUMN total_driving_minutes DROP NOT NULL,
+  ALTER COLUMN trip_log_vehicle_count DROP NOT NULL,
+  ALTER COLUMN maintenance_completed_count DROP NOT NULL,
+  ALTER COLUMN accident_count DROP NOT NULL,
+  ALTER COLUMN violation_count DROP NOT NULL,
+  ALTER COLUMN violation_amount DROP NOT NULL;
 
+-- 기본값(0)도 필요 없다면 아래와 같이 제거할 수 있습니다 (선택사항)
+-- ALTER TABLE public.monthly_summary 
+--   ALTER COLUMN vehicle_count DROP DEFAULT,
+--   ... (필요한 컬럼들);
 

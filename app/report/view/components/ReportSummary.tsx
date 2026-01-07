@@ -55,19 +55,33 @@ export default function ReportSummary({
   }
 
   // 평균 가동률 계산 (8시간 기준)
-  const calculateUtilization = (drivingMinutes: number, vehicleCount: number) => {
-    if (vehicleCount === 0) return 0;
-    const utilization24h = (drivingMinutes / (vehicleCount * 24 * 60)) * 100;
+  const calculateUtilization = (drivingMinutes: number, vehicleCount: number, yearMonth: string) => {
+    if (vehicleCount === 0 || !yearMonth) return 0;
+    
+    // 월별 일수 계산 (해당 월의 마지막 날짜 구하기)
+    const year = parseInt(yearMonth.substring(0, 4));
+    const month = parseInt(yearMonth.substring(4, 6));
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    // 24시간 기준 가동률 = (분) / (대수 * 24시간 * 60분 * 해당월일수) * 100
+    const utilization24h = (drivingMinutes / (vehicleCount * 24 * 60 * daysInMonth)) * 100;
+    
+    // 8시간 기준으로 환산 (×3)
     return utilization24h * 3;
   };
 
   const currentUtilization = calculateUtilization(
     currentSummary.total_driving_minutes,
     currentSummary.vehicle_count,
+    currentSummary.year_month
   );
 
   const previousUtilization = previousSummary
-    ? calculateUtilization(previousSummary.total_driving_minutes, previousSummary.vehicle_count)
+    ? calculateUtilization(
+        previousSummary.total_driving_minutes, 
+        previousSummary.vehicle_count,
+        previousSummary.year_month
+      )
     : null;
 
   // 3개월 데이터 포맷팅
