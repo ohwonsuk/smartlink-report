@@ -140,7 +140,13 @@ export async function POST(request: NextRequest) {
         .upsert(chunk, { onConflict });
 
       if (upsertError) {
-        errors.push({ chunk: i / CHUNK_SIZE + 1, error: upsertError });
+        errors.push({ 
+          chunk: i / CHUNK_SIZE + 1, 
+          message: upsertError.message,
+          details: upsertError.details,
+          hint: upsertError.hint,
+          code: upsertError.code
+        });
       } else {
         inserted += chunk.length;
       }
