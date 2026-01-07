@@ -88,17 +88,41 @@ export async function POST(request: NextRequest) {
 
     // 데이터 클렌징 (null 값 처리 등)
     const cleanedData = data.map((row: any) => {
-      const cleaned: any = { ...row };
+      const cleaned: any = {};
       
+      // 모든 필드에 대해 빈 값 처리 (빈 문자열, "null" 문자열 -> null)
+      Object.keys(row).forEach(key => {
+        const val = row[key];
+        if (
+          val === '' || 
+          val === undefined || 
+          val === null || 
+          (typeof val === 'string' && (val.toLowerCase() === 'null' || val.trim() === ''))
+        ) {
+          cleaned[key] = null;
+        } else {
+          cleaned[key] = val;
+        }
+      });
+
       // cmnyId 강제 적용 (단일 고객사 업로드인 경우)
       if (cmnyId) {
         cleaned.cmny_id = parseInt(cmnyId);
       }
       
+      // yearMonth 적용 (CSV에 없거나 수동 입력된 전달받은 값이 있는 경우)
+      if (yearMonth && !cleaned.year_month) {
+        cleaned.year_month = yearMonth;
+      }
+      
       // Boolean 처리 (is_paid, is_transferred 등)
       if (tableName === 'violations') {
-        if (typeof cleaned.is_paid === 'string') cleaned.is_paid = cleaned.is_paid.toLowerCase() === 'true';
-        if (typeof cleaned.is_transferred === 'string') cleaned.is_transferred = cleaned.is_transferred.toLowerCase() === 'true';
+        if (typeof cleaned.is_paid === 'string') {
+          cleaned.is_paid = cleaned.is_paid.toLowerCase() === 'true';
+        }
+        if (typeof cleaned.is_transferred === 'string') {
+          cleaned.is_transferred = cleaned.is_transferred.toLowerCase() === 'true';
+        }
       }
       return cleaned;
     });
