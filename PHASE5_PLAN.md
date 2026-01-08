@@ -22,7 +22,7 @@ cmny_id = 21, 다인정공
 
 #### ✅ 1) utilization_vehicle (이미 생성됨)
 - 차량별 가동률
-- 컬럼: cmny_id, year_month, vehicle_no, driving_minutes, utilization_pct
+- 컬럼: cmny_id, year_month, vehicle_no, vehicle_model, driving_minutes, utilization_pct
 
 #### 🆕 2) mileage_detail (차량별 주행거리)
 - 컬럼: cmny_id, year_month, vehicle_no, date, daily_mileage_km, cumulative_mileage_km

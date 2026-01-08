@@ -22,10 +22,10 @@ const TEMPLATE_CONFIG: Record<string, { headers: string[]; samples: string[][] }
     ],
   },
   utilization_vehicle: {
-    headers: ['cmny_id', 'year_month', 'vehicle_no', 'driving_minutes', 'utilization_pct'],
+    headers: ['cmny_id', 'year_month', 'vehicle_no', 'vehicle_model', 'driving_minutes', 'utilization_pct'],
     samples: [
-      ['1', '202512', '12가3456', '1200', '85.5'],
-      ['1', '202512', '78나9012', '1100', '78.2'],
+      ['1', '202512', '12가3456', '그랜저', '1200', '85.5'],
+      ['1', '202512', '78나9012', '아반떼', '1100', '78.2'],
     ],
   },
   monthly_mileage: {

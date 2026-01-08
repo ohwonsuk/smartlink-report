@@ -20,6 +20,7 @@ export default function ReportPage() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [favoritesRefresh, setFavoritesRefresh] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isViewing, setIsViewing] = useState(false);
 
   // 전월을 기본값으로 설정
   useEffect(() => {
@@ -92,6 +93,7 @@ export default function ReportPage() {
       alert('고객사와 날짜를 선택해주세요.');
       return;
     }
+    setIsViewing(true);
     // 리포트 조회 페이지로 이동
     const url = `/report/view?cmny_id=${selectedCompany.cmny_id}&year_month=${selectedDate}&view=${viewMode}`;
     window.location.href = url;
@@ -235,15 +237,23 @@ export default function ReportPage() {
           <div className="flex space-x-4">
             <button
               onClick={handleViewReport}
-              disabled={!selectedCompany || !selectedDate || isGenerating}
-              className="flex-1 rounded-md bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!selectedCompany || !selectedDate || isGenerating || isViewing}
+              className={`flex-1 rounded-md px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                isViewing
+                  ? 'bg-indigo-800 ring-2 ring-indigo-300 ring-offset-2'
+                  : 'bg-indigo-600 hover:bg-indigo-700 focus-visible:outline-indigo-600'
+              }`}
             >
-              웹화면 보기
+              {isViewing ? '조회 중...' : '웹화면 보기'}
             </button>
             <button
               onClick={handleDownloadPDF}
-              disabled={!selectedCompany || !selectedDate || isGenerating}
-              className="flex-1 rounded-md bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!selectedCompany || !selectedDate || isGenerating || isViewing}
+              className={`flex-1 rounded-md px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                isGenerating
+                  ? 'bg-green-800 ring-2 ring-green-300 ring-offset-2'
+                  : 'bg-green-600 hover:bg-green-700 focus-visible:outline-green-600'
+              }`}
             >
               {isGenerating ? 'PDF 생성 중...' : 'PDF 다운로드'}
             </button>
