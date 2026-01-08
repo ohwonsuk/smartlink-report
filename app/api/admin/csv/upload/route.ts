@@ -127,11 +127,12 @@ export async function POST(request: NextRequest) {
       return cleaned;
     });
 
+
     // 1000개씩 끊어서 업로드 (Supabase 제한 고려)
     const CHUNK_SIZE = 1000;
-    let inserted = 0;
-    let updated = 0; // upsert는 명확히 구분되지 않으므로 전체 성공 건수로 표시될 수 있음
-    const errors: any[] = [];
+    let successfulCount = 0;
+    const failedRows: any[] = [];
+    const chunkErrors: any[] = [];
 
     for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
       const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
@@ -140,24 +141,42 @@ export async function POST(request: NextRequest) {
         .upsert(chunk, { onConflict });
 
       if (upsertError) {
-        errors.push({ 
-          chunk: i / CHUNK_SIZE + 1, 
+        // 청크 전체 실패 시, 개별 행 단위로 재시도하여 실패 행 식별
+        console.warn(`Chunk ${i / CHUNK_SIZE + 1} failed, retrying row by row...`);
+        for (const row of chunk) {
+          const { error: rowError } = await supabase
+            .from(tableName)
+            .upsert(row, { onConflict });
+          
+          if (rowError) {
+            failedRows.push({
+              data: row,
+              error: rowError.message,
+              details: rowError.details,
+              code: rowError.code
+            });
+          } else {
+            successfulCount++;
+          }
+        }
+        chunkErrors.push({
+          chunk: i / CHUNK_SIZE + 1,
           message: upsertError.message,
-          details: upsertError.details,
-          hint: upsertError.hint,
           code: upsertError.code
         });
       } else {
-        inserted += chunk.length;
+        successfulCount += chunk.length;
       }
     }
 
     // 결과 업데이트
-    const finalStatus = errors.length === 0 ? 'success' : 'fail';
+    const finalStatus = failedRows.length === 0 ? 'success' : 'fail';
     const resultSummary = {
       total: cleanedData.length,
-      processed: inserted,
-      errors: errors,
+      processed: successfulCount,
+      failed: failedRows.length,
+      failed_rows: failedRows.slice(0, 500), // 너무 많으면 저장 용량 제한이 있으므로 최대 500개만 상세 기록
+      chunk_errors: chunkErrors,
     };
 
     if (uploadLog) {

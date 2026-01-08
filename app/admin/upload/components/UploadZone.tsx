@@ -79,20 +79,20 @@ export default function UploadZone({
 
       const result = await response.json();
 
-      if (response.ok) {
+      if (result.status === 'success') {
         setMessage({
           type: 'success',
-          text: `성공: ${result.summary.processed}개 항목이 처리되었습니다.`,
+          text: `업로드 성공: ${result.summary.processed}건이 처리되었습니다.`,
         });
         setFile(null);
-        router.refresh(); // 서버 컴포넌트 데이터 갱신
-        if (onUploadSuccess) onUploadSuccess();
       } else {
         setMessage({
           type: 'error',
-          text: `실패: ${result.error || '알 수 없는 오류가 발생했습니다.'}`,
+          text: `업로드 완료(부분 실패): 성공 ${result.summary.processed}건 / 실패 ${result.summary.failed}건. 하단 이력에서 상세 정보를 확인하세요.`,
         });
       }
+      router.refresh(); // 서버 컴포넌트 데이터 갱신
+      if (onUploadSuccess) onUploadSuccess();
     } catch (err: any) {
       setMessage({ type: 'error', text: `오류: ${err.message}` });
     } finally {
