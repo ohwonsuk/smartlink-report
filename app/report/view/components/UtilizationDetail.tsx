@@ -90,7 +90,7 @@ export default function UtilizationDetail({ yearMonth, vehicles, viewMode }: Pro
                   {vehicle.driving_minutes.toLocaleString()}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-sm font-semibold text-indigo-600">
-                  {vehicle.utilization_pct}%
+                  {(vehicle.utilization_pct * 3).toFixed(1)}%
                 </td>
               </tr>
             ))}

@@ -271,7 +271,7 @@ export default function ReportSummary({
                         </div>
                       </div>
                       <span className="text-base font-bold text-indigo-600">
-                        {vehicle.utilization_pct}%
+                        {(vehicle.utilization_pct * 3).toFixed(1)}%
                       </span>
                     </div>
                   ))}
