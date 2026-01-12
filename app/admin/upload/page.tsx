@@ -97,9 +97,10 @@ export default async function AdminUploadPage() {
                             {upload.result_summary ? (
                               <div className="flex flex-col gap-1">
                                 <span className="text-xs text-gray-500">
-                                  성공: {upload.result_summary.processed} / 실패: {upload.result_summary.failed || (upload.result_summary.errors?.length || 0)}
+                                  전체: {upload.result_summary.total || (upload.result_summary.processed + (upload.result_summary.failed || 0))} | 
+                                  성공: {upload.result_summary.processed} / 실패: {upload.result_summary.failed || 0}
                                 </span>
-                                {upload.status === 'fail' && upload.result_summary.failed_rows && (
+                                {(upload.status === 'fail' || upload.status === 'timeout') && upload.result_summary.failed_rows && upload.result_summary.failed_rows.length > 0 && (
                                   <div className="flex items-center gap-2 mt-1">
                                     <span className="text-[10px] text-red-500 truncate max-w-[120px]" title={upload.result_summary.failed_rows[0]?.error}>
                                       원인: {upload.result_summary.failed_rows[0]?.error}

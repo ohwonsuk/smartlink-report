@@ -158,6 +158,8 @@ export async function POST(request: NextRequest) {
       if (upsertError) {
         // 청크 전체 실패 시, 개별 행 단위로 재시도하여 실패 행 식별
         console.warn(`Chunk ${i / CHUNK_SIZE + 1} failed, retrying row by row...`);
+        let consecutiveErrors = 0;
+        
         for (const row of chunk) {
           // 개별 행 처리 중에도 타임아웃 체크
           if (Date.now() - START_TIME > TIMEOUT_LIMIT) {
@@ -176,10 +178,17 @@ export async function POST(request: NextRequest) {
               details: rowError.details,
               code: rowError.code
             });
-            // 실패가 너무 많으면 중단 (성능 보호)
-            if (failedRows.length >= 1000) break;
+            consecutiveErrors++;
+            
+            // 만약 10행 연속 실패하거나 총 실패가 너무 많으면 전체 스키마 문제로 판단하고 조기 중단
+            if (consecutiveErrors >= 5 || failedRows.length >= 1000) {
+              console.error('Too many consecutive errors, likely schema mismatch. Stopping...');
+              isTimedOut = false; // 타임아웃은 아니지만 중단됨을 알림
+              break; 
+            }
           } else {
             successfulCount++;
+            consecutiveErrors = 0; // 성공하면 카운트 초기화
           }
         }
         
