@@ -86,11 +86,11 @@ export default async function AdminUploadPage() {
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               upload.status === 'success' 
                                 ? 'bg-green-100 text-green-800' 
-                                : upload.status === 'fail' 
+                                : upload.status === 'fail' || upload.status === 'timeout'
                                   ? 'bg-red-100 text-red-800' 
                                   : 'bg-yellow-100 text-yellow-800'
                             }`}>
-                              {upload.status === 'success' ? '성공' : upload.status === 'fail' ? '실패' : '대기중'}
+                              {upload.status === 'success' ? '성공' : (upload.status === 'fail' ? '실패' : (upload.status === 'timeout' ? '타임아웃' : '대기중'))}
                             </span>
                           </td>
                           <td className="px-6 py-4">

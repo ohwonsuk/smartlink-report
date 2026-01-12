@@ -77,7 +77,13 @@ export default function UploadZone({
         body: formData,
       });
 
-      const result = await response.json();
+      let result;
+      try {
+        const text = await response.text();
+        result = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error(`서버 응답 파싱 실패 (상태 코드: ${response.status}). 서버가 일시적으로 중단되었거나 타임아웃이 발생했을 수 있습니다.`);
+      }
 
       if (result.status === 'success') {
         setMessage({

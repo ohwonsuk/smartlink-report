@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  let uploadLog: any = null;
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // raw_uploads 기록 시작
-    const { data: uploadLog, error: logError } = await supabase
+    const { data: logData, error: logError } = await supabase
       .from('raw_uploads')
       .insert({
         filename: file.name,
@@ -61,6 +63,8 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single();
+
+    uploadLog = logData;
 
     if (logError) {
       console.error('Logging error:', logError);
@@ -128,13 +132,24 @@ export async function POST(request: NextRequest) {
     });
 
 
-    // 1000개씩 끊어서 업로드 (Supabase 제한 고려)
-    const CHUNK_SIZE = 1000;
+    // Vercel 타임아웃(보통 10s~60s)을 고려한 설정
+    const CHUNK_SIZE = 200; // 청크 크기를 줄여 개별 재시도 속도 향상
+    const START_TIME = Date.now();
+    const TIMEOUT_LIMIT = 50000; // 50초 이후에는 중단하고 결과 반환
+    
     let successfulCount = 0;
     const failedRows: any[] = [];
     const chunkErrors: any[] = [];
+    let isTimedOut = false;
 
     for (let i = 0; i < cleanedData.length; i += CHUNK_SIZE) {
+      // 타임아웃 체크
+      if (Date.now() - START_TIME > TIMEOUT_LIMIT) {
+        console.warn('Upload process timeout approaching, stopping early...');
+        isTimedOut = true;
+        break;
+      }
+
       const chunk = cleanedData.slice(i, i + CHUNK_SIZE);
       const { error: upsertError } = await supabase
         .from(tableName)
@@ -144,6 +159,12 @@ export async function POST(request: NextRequest) {
         // 청크 전체 실패 시, 개별 행 단위로 재시도하여 실패 행 식별
         console.warn(`Chunk ${i / CHUNK_SIZE + 1} failed, retrying row by row...`);
         for (const row of chunk) {
+          // 개별 행 처리 중에도 타임아웃 체크
+          if (Date.now() - START_TIME > TIMEOUT_LIMIT) {
+            isTimedOut = true;
+            break;
+          }
+
           const { error: rowError } = await supabase
             .from(tableName)
             .upsert(row, { onConflict });
@@ -155,27 +176,33 @@ export async function POST(request: NextRequest) {
               details: rowError.details,
               code: rowError.code
             });
+            // 실패가 너무 많으면 중단 (성능 보호)
+            if (failedRows.length >= 1000) break;
           } else {
             successfulCount++;
           }
         }
+        
         chunkErrors.push({
           chunk: i / CHUNK_SIZE + 1,
           message: upsertError.message,
           code: upsertError.code
         });
+
+        if (isTimedOut || failedRows.length >= 1000) break;
       } else {
         successfulCount += chunk.length;
       }
     }
 
     // 결과 업데이트
-    const finalStatus = failedRows.length === 0 ? 'success' : 'fail';
+    const finalStatus = isTimedOut ? 'timeout' : (failedRows.length === 0 ? 'success' : 'fail');
     const resultSummary = {
       total: cleanedData.length,
       processed: successfulCount,
       failed: failedRows.length,
-      failed_rows: failedRows.slice(0, 500), // 너무 많으면 저장 용량 제한이 있으므로 최대 500개만 상세 기록
+      is_timeout: isTimedOut,
+      failed_rows: failedRows.slice(0, 500),
       chunk_errors: chunkErrors,
     };
 
@@ -196,6 +223,22 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Upload API Error:', error);
+    
+    // 에러 발생 시 로그 업데이트 시도
+    try {
+      if (uploadLog?.id) {
+        await supabase
+          .from('raw_uploads')
+          .update({
+            status: 'fail',
+            result_summary: { error: error.message, stack: error.stack }
+          })
+          .eq('id', uploadLog.id);
+      }
+    } catch (e) {
+      console.error('Failed to update error status:', e);
+    }
+
     return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
   }
 }
