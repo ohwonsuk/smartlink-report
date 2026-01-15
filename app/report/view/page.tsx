@@ -122,7 +122,7 @@ export default async function ReportViewPage({
       .eq('year_month', currentYearMonth)
       .eq('vehicle_no', topVehicle.vehicle_no)
       .order('log_date', { ascending: true })
-      .limit(12); // 운행일지는 행이 많으므로 12건
+      .limit(5); // 운행일지는 요청에 따라 5건만 표시
 
     drivingLogsData = {
       vehicleInfo: {

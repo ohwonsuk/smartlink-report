@@ -223,7 +223,7 @@ export default function DrivingLogsDetail({
               </tr>
             </thead>
             <tbody>
-              {logs.slice(0, 12).map((log, index) => (
+              {logs.slice(0, 5).map((log, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="border border-gray-300 p-2 text-center">{log.log_date}</td>
                   <td className="border border-gray-300 p-2 text-center">
