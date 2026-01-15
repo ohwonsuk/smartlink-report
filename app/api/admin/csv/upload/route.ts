@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       monthly_summary: 'cmny_id,year_month',
       utilization_vehicle: 'cmny_id,year_month,vehicle_no',
       monthly_mileage: 'cmny_id,year_month,vehicle_no',
-      driving_logs: 'cmny_id,vehicle_no,log_date',
+      driving_logs: 'cmny_id,vehicle_no,log_date,odometer_start',
       safety_scores: 'cmny_id,year_month,driver_name',
       maintenance_records: 'cmny_id,vehicle_no,check_in_date,maintenance_type',
       accidents: 'cmny_id,vehicle_no,accident_datetime',
@@ -96,16 +96,31 @@ export async function POST(request: NextRequest) {
       
       // 모든 필드에 대해 빈 값 처리 (빈 문자열, "null" 문자열 -> null)
       Object.keys(row).forEach(key => {
-        const val = row[key];
+        const trimmedKey = key.trim();
+        let val = row[key];
+
+        // 문자열인 경우 앞뒤 공백 제거
+        if (typeof val === 'string') {
+          val = val.trim();
+        }
+
         if (
           val === '' || 
           val === undefined || 
           val === null || 
           (typeof val === 'string' && (val.toLowerCase() === 'null' || val.trim() === ''))
         ) {
-          cleaned[key] = null;
+          cleaned[trimmedKey] = null;
         } else {
-          cleaned[key] = val;
+          // 날짜 형식 보정 (YYYY.MM.DD 또는 YYYY.M.D -> YYYY-MM-DD)
+          if (typeof val === 'string' && /^\d{4}\.\d{1,2}\.\d{1,2}$/.test(val)) {
+            const parts = val.split('.');
+            const year = parts[0];
+            const month = parts[1].padStart(2, '0');
+            const day = parts[2].padStart(2, '0');
+            val = `${year}-${month}-${day}`;
+          }
+          cleaned[trimmedKey] = val;
         }
       });
 
@@ -180,8 +195,8 @@ export async function POST(request: NextRequest) {
             });
             consecutiveErrors++;
             
-            // 만약 10행 연속 실패하거나 총 실패가 너무 많으면 전체 스키마 문제로 판단하고 조기 중단
-            if (consecutiveErrors >= 5 || failedRows.length >= 1000) {
+            // 만약 20행 연속 실패하거나 총 실패가 너무 많으면 전체 스키마 문제로 판단하고 조기 중단
+            if (consecutiveErrors >= 20 || failedRows.length >= 1000) {
               console.error('Too many consecutive errors, likely schema mismatch. Stopping...');
               isTimedOut = false; // 타임아웃은 아니지만 중단됨을 알림
               break; 

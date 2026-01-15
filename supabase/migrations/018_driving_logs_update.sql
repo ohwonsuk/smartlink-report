@@ -22,8 +22,8 @@ CREATE TABLE public.driving_logs (
   distance_km NUMERIC(10,2) GENERATED ALWAYS AS (odometer_end - odometer_start) STORED, -- 주행거리 (자동 계산)
   
   -- 운행 유형별 거리
-  commute_km NUMERIC(10,2) NOT NULL DEFAULT 0, -- 출퇴근용 거리 (km)
-  business_km NUMERIC(10,2) NOT NULL DEFAULT 0, -- 업무용 거리 (km)
+  commute_km NUMERIC(10,2), -- 출퇴근용 거리 (km)
+  business_km NUMERIC(10,2), -- 업무용 거리 (km)
   
   note TEXT, -- 비고
   
@@ -107,10 +107,10 @@ SELECT
   SUM(dl.distance_km) as total_distance_km,
   SUM(dl.commute_km) as total_commute_km,
   SUM(dl.business_km) as total_business_km,
-  SUM(dl.commute_km) + SUM(dl.business_km) as total_work_usage_km, -- 업무용 사용거리 (출퇴근 + 업무)
+  COALESCE(SUM(dl.commute_km), 0) + COALESCE(SUM(dl.business_km), 0) as total_work_usage_km, -- 업무용 사용거리 (출퇴근 + 업무)
   CASE 
     WHEN SUM(dl.distance_km) > 0 
-    THEN ROUND(((SUM(dl.commute_km) + SUM(dl.business_km)) / SUM(dl.distance_km) * 100)::numeric, 1)
+    THEN ROUND(((COALESCE(SUM(dl.commute_km), 0) + COALESCE(SUM(dl.business_km), 0)) / SUM(dl.distance_km) * 100)::numeric, 1)
     ELSE 0 
   END as business_usage_pct,
   COUNT(*) as log_count
