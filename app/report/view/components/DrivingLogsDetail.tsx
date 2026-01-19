@@ -28,6 +28,16 @@ type Props = {
   viewMode: 'pc' | 'mobile';
 };
 
+const maskName = (name: string) => {
+  if (name.length <= 1) return name;
+  if (name.length === 2) return name.charAt(0) + '*';
+  return (
+    name.charAt(0) +
+    '*'.repeat(name.length - 2) +
+    name.charAt(name.length - 1)
+  );
+};
+
 export default function DrivingLogsDetail({
   company,
   yearMonth,
@@ -223,14 +233,14 @@ export default function DrivingLogsDetail({
               </tr>
             </thead>
             <tbody>
-              {logs.slice(0, 5).map((log, index) => (
+              {logs.slice(0, 12).map((log, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="border border-gray-300 p-2 text-center">{log.log_date}</td>
                   <td className="border border-gray-300 p-2 text-center">
                     {log.department || ''}
                   </td>
                   <td className="border border-gray-300 p-2 text-center">
-                    {log.driver_name || ''}
+                    {log.driver_name ? maskName(log.driver_name) : ''}
                   </td>
                   <td className="border border-gray-300 p-2 text-right">
                     {log.odometer_start.toLocaleString()}

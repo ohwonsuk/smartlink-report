@@ -170,8 +170,8 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
 
 // 이름 마스킹 (이*주 형태)
 function maskName(name: string): string {
-  if (!name || name.length < 2) return name;
+  if (!name || name.length <= 1) return name;
   if (name.length === 2) return name[0] + '*';
-  return name[0] + '*' + name[name.length - 1];
+  return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
 }
 

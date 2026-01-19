@@ -173,9 +173,11 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
   );
 }
 
-// 이름 마스킹 (*** 형태)
+// 이름 마스킹 (첫글자, 끝글자 제외 중간 마스킹)
 function maskName(name: string): string {
-  return '***';
+  if (!name || name.length <= 1) return name;
+  if (name.length === 2) return name[0] + '*';
+  return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
 }
 
 // 텍스트 마스킹 (**** 형태)
