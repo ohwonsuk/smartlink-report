@@ -65,19 +65,19 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
             <tr>
               <th
                 colSpan={3}
-                className="border-r border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
+                className="border-r border-b border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
               >
                 기본정보
               </th>
               <th
                 colSpan={3}
-                className="border-r border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
+                className="border-r border-b border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
               >
                 누적운행정보
               </th>
               <th
                 colSpan={4}
-                className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
+                className="border-b border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
               >
                 평균운행정보
               </th>
