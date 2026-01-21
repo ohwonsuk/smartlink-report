@@ -139,7 +139,7 @@ export default async function ReportViewPage({
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
-    .order('total_distance_km', { ascending: false })
+    .order('avg_safety_score', { ascending: false })
     .limit(15);
 
   // 5. 정비현황 - Top 10

@@ -65,55 +65,55 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
             <tr>
               <th
                 colSpan={3}
-                className="border-r border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="border-r border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
               >
                 기본정보
               </th>
               <th
                 colSpan={3}
-                className="border-r border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="border-r border-gray-300 px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
               >
                 누적운행정보
               </th>
               <th
                 colSpan={4}
-                className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap"
               >
                 평균운행정보
               </th>
             </tr>
             <tr>
               {/* 기본정보 */}
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 운전자
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 소속
               </th>
-              <th className="border-r border-gray-300 px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="border-r border-gray-300 px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 사번
               </th>
               {/* 누적운행정보 */}
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 운행건수
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 운행거리(km)
               </th>
-              <th className="border-r border-gray-300 px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="border-r border-gray-300 px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 운행시간(분)
               </th>
               {/* 평균운행정보 */}
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 급가속횟수
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 급감속횟수
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 평균과속률(%)
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 평균안전점수
               </th>
             </tr>
@@ -129,7 +129,7 @@ export default function SafetyScoresDetail({ yearMonth, scores, viewMode }: Prop
                   {score.department || '-'}
                 </td>
                 <td className="border-r border-gray-200 whitespace-nowrap px-3 py-3 text-sm text-gray-500">
-                  {score.employee_no || '-'}
+                  {maskEmployeeNo(score.employee_no)}
                 </td>
                 {/* 누적운행정보 */}
                 <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-gray-900">
@@ -173,5 +173,13 @@ function maskName(name: string): string {
   if (!name || name.length <= 1) return name;
   if (name.length === 2) return name[0] + '*';
   return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+}
+
+// 사번 마스킹 (첫글자, 끝글자 제외 중간 마스킹)
+function maskEmployeeNo(no: string | null): string {
+  if (!no) return '-';
+  if (no.length <= 1) return no;
+  if (no.length === 2) return no[0] + '*';
+  return no[0] + '*'.repeat(no.length - 2) + no[no.length - 1];
 }
 
