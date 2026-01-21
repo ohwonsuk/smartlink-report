@@ -157,7 +157,7 @@ export default async function ReportViewPage({
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
-    .order('accident_datetime', { ascending: false })
+    .order('accident_date_time', { ascending: false })
     .limit(10);
 
   // 7. 범칙금 (최신 10건)

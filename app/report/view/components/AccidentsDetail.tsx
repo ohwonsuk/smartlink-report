@@ -4,18 +4,18 @@ import { AlertTriangle } from 'lucide-react';
 
 type Accident = {
   department: string | null;
-  driver_name: string;
+  driver_name: string | null;
   vehicle_no: string;
-  vehicle_model: string | null;
-  accident_category: string;
+  vehicle_model: string;
   accident_type: string;
-  accident_datetime: string;
-  report_date: string;
-  report_number: string | null;
+  accident_category: string;
+  accident_date_time: string;
+  reception_date: string;
+  reception_no: string;
   status: string;
-  close_date: string | null;
-  deductible: number;
-  accident_location: string | null;
+  completion_date: string | null;
+  deductible: number | null;
+  location: string | null;
 };
 
 type Props = {
@@ -120,7 +120,7 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
                   {maskText(accident.department)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
-                  {maskName(accident.driver_name)}
+                  {maskName(accident.driver_name || '')}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-gray-900">
                   {accident.vehicle_no}
@@ -129,19 +129,19 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
                   {accident.vehicle_model || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
-                  {accident.accident_category}
-                </td>
-                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
                   {accident.accident_type}
                 </td>
-                <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-900">
-                  {formatDateTime(accident.accident_datetime)}
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
+                  {accident.accident_category}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-900">
-                  {accident.report_date}
+                  {formatDateTime(accident.accident_date_time)}
+                </td>
+                <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-900">
+                  {accident.reception_date}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
-                  {accident.report_number || '-'}
+                  {accident.reception_no || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm">
                   <span
@@ -151,13 +151,13 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
-                  {accident.close_date || '-'}
+                  {accident.completion_date || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-gray-900">
-                  {accident.deductible.toLocaleString()}
+                  {accident.deductible?.toLocaleString() || '-'}
                 </td>
                 <td className="px-3 py-3 text-sm text-gray-500">
-                  {accident.accident_location || '-'}
+                  {accident.location || '-'}
                 </td>
               </tr>
             ))}
@@ -198,11 +198,13 @@ function formatDateTime(datetime: string): string {
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case '완료':
+    case '처리완료':
+    case '출고완료':
     case '종결':
       return 'bg-green-100 text-green-800';
     case '처리중':
       return 'bg-blue-100 text-blue-800';
+    case '사고접수':
     case '접수':
       return 'bg-yellow-100 text-yellow-800';
     default:

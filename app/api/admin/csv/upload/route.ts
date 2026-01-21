@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       driving_logs: 'cmny_id,vehicle_no,log_date,odometer_start',
       safety_scores: 'cmny_id,year_month,driver_name',
       maintenance_records: 'cmny_id,vehicle_no,check_in_date,maintenance_type',
-      accidents: 'cmny_id,vehicle_no,accident_datetime',
+      accidents: 'cmny_id,reception_no',
       violations: 'cmny_id,vehicle_no,violation_datetime',
       companies: 'cmny_id',
     };
