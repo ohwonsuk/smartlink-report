@@ -66,46 +66,46 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 No
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 소속
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 운전자명
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 차량번호
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 차종
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 사고구분
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 사고분류
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 사고일시
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 접수일자
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 접수번호
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 처리상태
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 종결일자
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 면책금
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 사고장소
               </th>
             </tr>
@@ -156,7 +156,7 @@ export default function AccidentsDetail({ yearMonth, accidents, viewMode }: Prop
                 <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-gray-900">
                   {accident.deductible?.toLocaleString() || '-'}
                 </td>
-                <td className="px-3 py-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
                   {accident.location || '-'}
                 </td>
               </tr>
