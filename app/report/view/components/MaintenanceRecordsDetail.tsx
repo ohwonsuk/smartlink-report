@@ -3,15 +3,16 @@
 import { Wrench } from 'lucide-react';
 
 type MaintenanceRecord = {
-  maintenance_type: string;
   vehicle_no: string;
-  vehicle_model: string | null;
-  mileage_km: number;
+  vehicle_model: string;
+  current_mileage: number | null;
   check_in_date: string;
   check_out_date: string | null;
   service_product: string | null;
-  service_center: string | null;
-  status: string;
+  service_center: string;
+  center_phone: string | null;
+  technician_name: string | null;
+  status: string | null;
 };
 
 type Props = {
@@ -66,13 +67,10 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
                 No
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                구분
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 차량번호
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                모델
+                차종
               </th>
               <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                 주행거리
@@ -89,6 +87,12 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
               <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 정비소명
               </th>
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                정비소연락처
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                정비담당자
+              </th>
               <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                 완료상태
               </th>
@@ -100,17 +104,14 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
                   {index + 1}
                 </td>
-                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
-                  {record.maintenance_type}
-                </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-gray-900">
                   {record.vehicle_no}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
-                  {record.vehicle_model || '-'}
+                  {record.vehicle_model}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-right text-sm text-gray-900">
-                  {record.mileage_km.toLocaleString()}
+                  {record.current_mileage?.toLocaleString() || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-900">
                   {record.check_in_date}
@@ -121,14 +122,20 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
                 <td className="px-3 py-3 text-sm text-gray-500">
                   {record.service_product || '-'}
                 </td>
+                <td className="px-3 py-3 text-sm text-gray-500">
+                  {record.service_center}
+                </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
-                  {record.service_center || '-'}
+                  {maskPhone(record.center_phone)}
+                </td>
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
+                  {maskTechnician(record.technician_name)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm">
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusColor(record.status)}`}
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusColor(record.status || '')}`}
                   >
-                    {record.status}
+                    {record.status || '-'}
                   </span>
                 </td>
               </tr>
@@ -156,5 +163,26 @@ function getStatusColor(status: string): string {
     default:
       return 'bg-gray-100 text-gray-800';
   }
+}
+
+// 정비담당자 마스킹: 맨앞뒤 제외한 가운데 마스킹
+function maskTechnician(name: string | null): string {
+  if (!name) return '-';
+  if (name.length <= 1) return name;
+  if (name.length === 2) return name[0] + '*';
+  return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+}
+
+// 정비소연락처 마스킹: 전화번호 중간의 하이픈(-) 사이값 마스킹
+function maskPhone(phone: string | null): string {
+  if (!phone) return '-';
+  const parts = phone.split('-');
+  if (parts.length === 3) {
+    return `${parts[0]}-****-${parts[2]}`;
+  }
+  if (parts.length === 2) {
+    return `${parts[0]}-****`;
+  }
+  return phone;
 }
 
