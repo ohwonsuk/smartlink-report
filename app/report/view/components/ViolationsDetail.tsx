@@ -70,49 +70,49 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 No
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 소속
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 운전자명
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 차량번호
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 위반일시
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 고지서유형
               </th>
-              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 범칙금
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 세부내용
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 관할관청
               </th>
-              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 위반장소
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 납부기한
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 이관여부
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 이관일
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 납부여부
               </th>
-              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 whitespace-nowrap">
                 납부일
               </th>
             </tr>
@@ -141,9 +141,9 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
                 <td className="whitespace-nowrap px-3 py-3 text-right text-sm font-semibold text-gray-900">
                   {violation.fine_amount.toLocaleString()}
                 </td>
-                <td className="px-3 py-3 text-sm text-gray-500">{violation.detail_info || '-'}</td>
-                <td className="px-3 py-3 text-sm text-gray-500">{violation.authority || '-'}</td>
-                <td className="px-3 py-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{violation.detail_info || '-'}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{violation.authority || '-'}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
                   {violation.location || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
