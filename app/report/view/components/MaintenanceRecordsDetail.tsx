@@ -126,10 +126,10 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-900">
                   {record.check_out_date || '-'}
                 </td>
-                <td className="px-3 py-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
                   {record.service_product || '-'}
                 </td>
-                <td className="px-3 py-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
                   {record.service_center}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
