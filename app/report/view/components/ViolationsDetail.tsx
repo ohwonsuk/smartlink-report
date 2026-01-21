@@ -4,18 +4,18 @@ import { Coins } from 'lucide-react';
 
 type Violation = {
   department: string | null;
-  driver_name: string;
+  driver_name: string | null;
   vehicle_no: string;
-  violation_datetime: string;
+  violation_date_time: string;
   notice_type: string;
   fine_amount: number;
   detail_info: string | null;
   authority: string | null;
-  violation_location: string | null;
+  location: string | null;
   payment_due_date: string | null;
-  is_transferred: boolean;
+  is_transferred: 'Y' | 'N';
   transfer_date: string | null;
-  is_paid: boolean;
+  is_paid: 'Y' | 'N';
   payment_date: string | null;
 };
 
@@ -127,13 +127,13 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
                   {maskText(violation.department)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
-                  {maskName(violation.driver_name)}
+                  {maskName(violation.driver_name || '')}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-gray-900">
                   {violation.vehicle_no}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-900">
-                  {formatDateTime(violation.violation_datetime)}
+                  {formatDateTime(violation.violation_date_time)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
                   {violation.notice_type}
@@ -144,30 +144,30 @@ export default function ViolationsDetail({ yearMonth, violations, viewMode }: Pr
                 <td className="px-3 py-3 text-sm text-gray-500">{violation.detail_info || '-'}</td>
                 <td className="px-3 py-3 text-sm text-gray-500">{violation.authority || '-'}</td>
                 <td className="px-3 py-3 text-sm text-gray-500">
-                  {violation.violation_location || '-'}
+                  {violation.location || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
                   {violation.payment_due_date || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm">
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${violation.is_transferred ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${violation.is_transferred === 'Y' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}
                   >
-                    {violation.is_transferred ? 'Y' : 'N'}
+                    {violation.is_transferred}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
-                  {violation.transfer_date || 'N'}
+                  {violation.transfer_date || '-'}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm">
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${violation.is_paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${violation.is_paid === 'Y' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
                   >
-                    {violation.is_paid ? 'Y' : 'N'}
+                    {violation.is_paid}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
-                  {violation.payment_date || 'N'}
+                  {violation.payment_date || '-'}
                 </td>
               </tr>
             ))}

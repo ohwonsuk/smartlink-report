@@ -166,7 +166,7 @@ export default async function ReportViewPage({
     .select('*')
     .eq('cmny_id', cmnyId)
     .eq('year_month', currentYearMonth)
-    .order('violation_datetime', { ascending: false })
+    .order('violation_date_time', { ascending: false })
     .limit(10);
 
   if (!currentSummary) {

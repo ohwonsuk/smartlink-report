@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       safety_scores: 'cmny_id,year_month,driver_name',
       maintenance_records: 'cmny_id,vehicle_no,check_in_date,maintenance_type',
       accidents: 'cmny_id,reception_no',
-      violations: 'cmny_id,vehicle_no,violation_datetime',
+      violations: 'cmny_id,vehicle_no,violation_date_time',
       companies: 'cmny_id',
     };
 
@@ -134,15 +134,6 @@ export async function POST(request: NextRequest) {
         cleaned.year_month = yearMonth;
       }
       
-      // Boolean 처리 (is_paid, is_transferred 등)
-      if (tableName === 'violations') {
-        if (typeof cleaned.is_paid === 'string') {
-          cleaned.is_paid = cleaned.is_paid.toLowerCase() === 'true';
-        }
-        if (typeof cleaned.is_transferred === 'string') {
-          cleaned.is_transferred = cleaned.is_transferred.toLowerCase() === 'true';
-        }
-      }
       return cleaned;
     });
 
