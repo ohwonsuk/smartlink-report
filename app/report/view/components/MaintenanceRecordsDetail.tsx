@@ -3,6 +3,7 @@
 import { Wrench } from 'lucide-react';
 
 type MaintenanceRecord = {
+  maintenance_type: string;
   vehicle_no: string;
   vehicle_model: string;
   current_mileage: number | null;
@@ -67,6 +68,9 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
                 No
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                구분
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 차량번호
               </th>
               <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -103,6 +107,9 @@ export default function MaintenanceRecordsDetail({ yearMonth, records, viewMode 
               <tr key={index} className="hover:bg-gray-50">
                 <td className="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-500">
                   {index + 1}
+                </td>
+                <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-900">
+                  {record.maintenance_type}
                 </td>
                 <td className="whitespace-nowrap px-3 py-3 text-sm font-medium text-gray-900">
                   {record.vehicle_no}

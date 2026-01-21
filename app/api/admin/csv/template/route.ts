@@ -87,6 +87,7 @@ const TEMPLATE_CONFIG: Record<string, { headers: string[]; samples: string[][] }
     headers: [
       'year_month',
       'cmny_id',
+      'maintenance_type',
       'vehicle_no',
       'vehicle_model',
       'current_mileage',
@@ -102,6 +103,7 @@ const TEMPLATE_CONFIG: Record<string, { headers: string[]; samples: string[][] }
       [
         '202512',
         '1',
+        '기타정비',
         '12가3456',
         '그랜저',
         '15000',
