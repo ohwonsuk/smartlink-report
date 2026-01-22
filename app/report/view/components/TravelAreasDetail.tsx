@@ -29,8 +29,13 @@ const COLOR_PALETTE = [
 ];
 
 export default function TravelAreasDetail({ yearMonth, records, viewMode }: Props) {
+  const [mounted, setMounted] = React.useState(false);
   const year = parseInt(yearMonth.substring(0, 4));
   const month = parseInt(yearMonth.substring(4, 6));
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { wordData, stats } = useMemo(() => {
     if (records.length === 0) return { wordData: [], stats: { topCount: 0, totalCount: 0, ratio: 0 } };
@@ -80,9 +85,9 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
     const min = Math.min(...wordData.map((d) => d.value));
     const max = Math.max(...wordData.map((d) => d.value));
     
-    // 최소 12px, 최대 60px (모바일은 조금 더 작게)
-    const minSize = viewMode === 'mobile' ? 10 : 14;
-    const maxSize = viewMode === 'mobile' ? 40 : 64;
+    // 최소 12px, 최대 50px (너무 크면 레이아웃 실패 가능성 있음)
+    const minSize = viewMode === 'mobile' ? 10 : 12;
+    const maxSize = viewMode === 'mobile' ? 36 : 50;
     
     const scale = scaleLinear()
       .domain([min, max])
@@ -139,18 +144,23 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
 
       {/* WordCloud 영역 */}
       <div className="flex justify-center bg-gray-50 rounded-xl overflow-hidden min-h-[400px]">
-        <WordCloud
-          data={wordData}
-          width={viewMode === 'pc' ? 800 : 400}
-          height={400}
-          font="Inter, sans-serif"
-          fontWeight="bold"
-          fontSize={(word) => fontSizeScale(word.value)}
-          rotate={0}
-          padding={4}
-          random={() => 0.5} // 일관된 배치를 위해 고정값
-          fill={(_, i) => COLOR_PALETTE[i % COLOR_PALETTE.length]}
-        />
+        {mounted ? (
+          <WordCloud
+            data={wordData}
+            width={viewMode === 'pc' ? 800 : 400}
+            height={400}
+            font="Inter, sans-serif"
+            fontWeight="bold"
+            fontSize={(word) => fontSizeScale(word.value)}
+            rotate={0}
+            padding={4}
+            fill={(_, i) => COLOR_PALETTE[i % COLOR_PALETTE.length]}
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-400">
+            시각화 로딩 중...
+          </div>
+        )}
       </div>
 
       {/* 하단 주석 */}
