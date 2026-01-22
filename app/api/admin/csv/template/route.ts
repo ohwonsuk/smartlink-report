@@ -196,11 +196,11 @@ const TEMPLATE_CONFIG: Record<string, { headers: string[]; samples: string[][] }
     ],
   },
   travel_areas: {
-    headers: ['year_month', 'cmny_id', 'vehicle_no', 'sido', 'sigungu', 'trip_count'],
+    headers: ['year_month', 'cmny_id', 'sido', 'sigungu', 'trip_count'],
     samples: [
-      ['202512', '1', '12가3456', '서울특별시', '강남구', '45'],
-      ['202512', '1', '12가3456', '경기도', '수원시 팔달구', '32'],
-      ['202512', '1', '78나9012', '부산광역시', '해운대구', '28'],
+      ['202512', '1', '서울특별시', '강남구', '450'],
+      ['202512', '1', '경기도', '수원시 팔달구', '380'],
+      ['202512', '1', '부산광역시', '해운대구', '252'],
     ],
   },
   companies: {

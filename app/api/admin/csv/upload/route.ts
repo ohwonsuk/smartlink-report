@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       maintenance_records: 'cmny_id,vehicle_no,check_in_date,service_center,maintenance_type',
       accidents: 'cmny_id,reception_no',
       violations: 'cmny_id,vehicle_no,violation_date_time',
-      travel_areas: 'cmny_id,year_month,vehicle_no,sido,sigungu',
+      travel_areas: 'cmny_id,year_month,sido,sigungu',
       companies: 'cmny_id',
     };
 

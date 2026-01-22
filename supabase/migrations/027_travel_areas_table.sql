@@ -6,7 +6,6 @@ CREATE TABLE public.travel_areas (
   cmny_id INTEGER NOT NULL REFERENCES public.companies(cmny_id) ON DELETE CASCADE,
   year_month CHAR(6) NOT NULL, -- 'YYYYMM' 형식
   
-  vehicle_no TEXT NOT NULL, -- 차량번호
   sido TEXT NOT NULL, -- 시도명
   sigungu TEXT NOT NULL, -- 시군구명
   trip_count INTEGER NOT NULL DEFAULT 1, -- 횟수
@@ -14,13 +13,12 @@ CREATE TABLE public.travel_areas (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   
-  -- 동일 차량이 동일 지역을 같은 달에 이동한 기록은 합산(Upsert)하기 위해 유니크 제약 조건 설정
-  CONSTRAINT travel_areas_unique_entry UNIQUE (cmny_id, year_month, vehicle_no, sido, sigungu)
+  -- 동일 지역을 같은 달에 이동한 기록은 합산(Upsert)하기 위해 유니크 제약 조건 설정
+  CONSTRAINT travel_areas_unique_entry UNIQUE (cmny_id, year_month, sido, sigungu)
 );
 
 -- 2) 인덱스 생성
 CREATE INDEX travel_areas_cmny_year_idx ON public.travel_areas(cmny_id, year_month);
-CREATE INDEX travel_areas_vehicle_idx ON public.travel_areas(vehicle_no, year_month);
 
 -- 3) RLS 활성화
 ALTER TABLE public.travel_areas ENABLE ROW LEVEL SECURITY;
