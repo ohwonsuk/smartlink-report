@@ -12,6 +12,7 @@ const TABLES = [
   { id: 'maintenance_records', name: '정비현황 (Maintenance)' },
   { id: 'accidents', name: '사고내역 (Accidents)' },
   { id: 'violations', name: '범칙금 (Violations)' },
+  { id: 'travel_areas', name: '주요 이동지역 (Travel Areas)' },
   { id: 'companies', name: '고객사 정보 (Companies)' },
 ];
 
