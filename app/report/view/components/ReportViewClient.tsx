@@ -22,6 +22,7 @@ type Props = {
     maintenanceRecords: any[];
     accidents: any[];
     violations: any[];
+    travelAreas: any[];
   };
 };
 
@@ -75,6 +76,7 @@ export default function ReportViewClient({
           maintenanceRecords={detailData.maintenanceRecords}
           accidents={detailData.accidents}
           violations={detailData.violations}
+          travelAreas={detailData.travelAreas}
         />
       </div>
 

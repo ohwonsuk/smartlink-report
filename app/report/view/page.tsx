@@ -169,6 +169,13 @@ export default async function ReportViewPage({
     .order('violation_date_time', { ascending: false })
     .limit(10);
 
+  // 8. 주요 이동지역 (전체)
+  const { data: travelAreasData } = await supabase
+    .from('travel_areas')
+    .select('*')
+    .eq('cmny_id', cmnyId)
+    .eq('year_month', currentYearMonth);
+
   if (!currentSummary) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -244,6 +251,7 @@ export default async function ReportViewPage({
             maintenanceRecords: maintenanceData || [],
             accidents: accidentsData || [],
             violations: violationsData || [],
+            travelAreas: travelAreasData || [],
           }}
         />
 

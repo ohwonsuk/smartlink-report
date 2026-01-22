@@ -7,6 +7,7 @@ import SafetyScoresDetail from './SafetyScoresDetail';
 import MaintenanceRecordsDetail from './MaintenanceRecordsDetail';
 import AccidentsDetail from './AccidentsDetail';
 import ViolationsDetail from './ViolationsDetail';
+import TravelAreasDetail from './TravelAreasDetail';
 
 type Props = {
   company: {
@@ -22,6 +23,7 @@ type Props = {
   maintenanceRecords: any[];
   accidents: any[];
   violations: any[];
+  travelAreas: any[];
 };
 
 export default function DetailReport({
@@ -35,6 +37,7 @@ export default function DetailReport({
   maintenanceRecords,
   accidents,
   violations,
+  travelAreas,
 }: Props) {
   return (
     <div className="space-y-8">
@@ -92,6 +95,14 @@ export default function DetailReport({
       <ViolationsDetail
         yearMonth={yearMonth}
         violations={violations || []}
+        viewMode={viewMode}
+      />
+      <div className="page-break" />
+
+      {/* 8. 주요 이동지역 */}
+      <TravelAreasDetail
+        yearMonth={yearMonth}
+        records={travelAreas || []}
         viewMode={viewMode}
       />
     </div>

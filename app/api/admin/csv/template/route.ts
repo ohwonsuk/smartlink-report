@@ -195,6 +195,14 @@ const TEMPLATE_CONFIG: Record<string, { headers: string[]; samples: string[][] }
       ],
     ],
   },
+  travel_areas: {
+    headers: ['year_month', 'cmny_id', 'vehicle_no', 'sido', 'sigungu', 'trip_count'],
+    samples: [
+      ['202512', '1', '12가3456', '서울특별시', '강남구', '45'],
+      ['202512', '1', '12가3456', '경기도', '수원시 팔달구', '32'],
+      ['202512', '1', '78나9012', '부산광역시', '해운대구', '28'],
+    ],
+  },
   companies: {
     headers: ['cmny_id', 'cmny_nm', 'biz_no'],
     samples: [
