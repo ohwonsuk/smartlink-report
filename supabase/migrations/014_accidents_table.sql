@@ -20,7 +20,7 @@ CREATE TABLE public.accidents (
   reception_date DATE NOT NULL, -- 접수일자 (Date만)
   reception_no TEXT NOT NULL, -- 접수번호
   
-  status TEXT NOT NULL CHECK (status IN ('사고접수', '처리중', '처리완료', '출고완료')), -- 처리상태
+  status TEXT NOT NULL CHECK (status IN ('사고접수', '처리중', '처리완료', '출고완료', '종결요청')), -- 처리상태
   
   completion_date DATE, -- 종결일자 (NULL 가능, Date만)
   deductible INTEGER, -- 면책금 (NULL 가능)

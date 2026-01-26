@@ -206,6 +206,7 @@ function getStatusColor(status: string): string {
       return 'bg-blue-100 text-blue-800';
     case '사고접수':
     case '접수':
+    case '종결요청':
       return 'bg-yellow-100 text-yellow-800';
     default:
       return 'bg-gray-100 text-gray-800';
