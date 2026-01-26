@@ -76,7 +76,7 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
     };
   }, [records]);
 
-  // 커스텀 스파이럴 레이아웃 (d3-cloud 의존성 제거로 안정성 확보)
+  // 충돌 방지 알고리즘이 적용된 레이아웃 (반복 검색으로 중첩 방지)
   const layoutWords = useMemo(() => {
     if (wordData.length === 0) return [];
     
@@ -84,16 +84,61 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
     const minVal = wordData[wordData.length - 1].value;
     const diff = maxVal - minVal || 1;
 
+    const width = viewMode === 'pc' ? 800 : 400;
+    const height = 400;
+    const occupied: { x1: number; y1: number; x2: number; y2: number }[] = [];
+
     return wordData.map((d, i) => {
-      // 황금비 나선형 배치 (Golden Spiral)
-      const angle = i * 2.4; // 137.5도 (황금각)
-      const radius = Math.sqrt(i) * (viewMode === 'pc' ? 35 : 20);
-      
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      
       const relativePos = (d.value - minVal) / diff;
-      const fontSize = (viewMode === 'pc' ? 14 : 10) + relativePos * (viewMode === 'pc' ? 36 : 20);
+      const fontSize = (viewMode === 'pc' ? 14 : 10) + relativePos * (viewMode === 'pc' ? 36 : 22);
+      
+      // 글자 크기 기반 바운딩 박스 예측 (한글 가로폭 계수 ~0.8)
+      const textWidth = d.text.length * fontSize * 0.8;
+      const textHeight = fontSize * 1.2;
+
+      let x = 0;
+      let y = 0;
+      let found = false;
+      
+      // 나선을 따라 빈 공간 찾기 (Collision Detection)
+      for (let attempt = 0; attempt < 1000; attempt += 5) {
+        const angle = attempt * 0.1;
+        const radius = attempt * 0.4; // 나선 팽창 속도
+        
+        const testX = Math.cos(angle) * radius;
+        const testY = Math.sin(angle) * radius;
+
+        const x1 = testX - textWidth / 2;
+        const y1 = testY - textHeight / 2;
+        const x2 = testX + textWidth / 2;
+        const y2 = testY + textHeight / 2;
+
+        // 경계선 체크 (영역 밖으로 나가지 않게)
+        if (Math.abs(testX) > width / 2 - textWidth / 2 || Math.abs(testY) > height / 2 - textHeight / 2) {
+          continue;
+        }
+
+        // 기존 단어들과 충돌하는지 확인
+        const isOverlap = occupied.some(rect => 
+          x1 < rect.x2 && x2 > rect.x1 && y1 < rect.y2 && y2 > rect.y1
+        );
+
+        if (!isOverlap) {
+          x = testX;
+          y = testY;
+          occupied.push({ x1: x1 - 4, y1: y1 - 2, x2: x2 + 4, y2: y2 + 2 }); // 약간의 여백 추가
+          found = true;
+          break;
+        }
+      }
+
+      // 공간을 못 찾은 경우 최후의 수단으로 바깥쪽 배치 (겹칠 수 있음)
+      if (!found) {
+        const angle = i * 2.4;
+        const radius = 150 + i * 2;
+        x = Math.cos(angle) * radius;
+        y = Math.sin(angle) * radius;
+      }
       
       return {
         ...d,
