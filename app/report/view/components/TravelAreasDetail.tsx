@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { MapPin } from 'lucide-react';
-import WordCloud from 'react-d3-cloud';
-import { scaleLinear } from 'd3-scale';
+import React, { useMemo, useState, useEffect } from 'react';
+import { MapPin, Info } from 'lucide-react';
 
 type TravelArea = {
   sido: string;
@@ -17,7 +15,6 @@ type Props = {
   viewMode: 'pc' | 'mobile';
 };
 
-// 색상 팔레트 (관리자가 조정 가능하도록 상수로 분리)
 const COLOR_PALETTE = [
   '#4F46E5', // indigo-600
   '#0891B2', // cyan-600
@@ -29,36 +26,36 @@ const COLOR_PALETTE = [
 ];
 
 export default function TravelAreasDetail({ yearMonth, records, viewMode }: Props) {
-  const [mounted, setMounted] = React.useState(false);
-  const year = parseInt(yearMonth.substring(0, 4));
+  const [mounted, setMounted] = useState(false);
+  const year = yearMonth.substring(0, 4);
   const month = parseInt(yearMonth.substring(4, 6));
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
   const { wordData, stats } = useMemo(() => {
-    if (records.length === 0) return { wordData: [], stats: { topCount: 0, totalCount: 0, ratio: 0 } };
+    if (!records || records.length === 0) return { wordData: [], stats: { topCount: 0, totalCount: 0, ratio: 0 } };
 
     // 1. 데이터 변환 및 집계
     const aggregated: Record<string, number> = {};
     let totalCount = 0;
 
     records.forEach((r) => {
-      let sido = r.sido;
+      let sido = r.sido || '';
+      let sigungu = r.sigungu || '';
       let displayName = '';
       
       if (sido.includes('특별시') || sido.includes('광역시')) {
-        // 특별시, 광역시 문자는 제외하고 시도명 + 시군구명
         const shortSido = sido.replace('특별시', '').replace('광역시', '').trim();
-        displayName = `${shortSido} ${r.sigungu}`;
+        displayName = `${shortSido} ${sigungu}`;
       } else {
-        // 그 외 지역은 시군구명만
-        displayName = r.sigungu;
+        displayName = sigungu;
       }
 
-      aggregated[displayName] = (aggregated[displayName] || 0) + r.trip_count;
-      totalCount += r.trip_count;
+      const count = Number(r.trip_count) || 0;
+      aggregated[displayName] = (aggregated[displayName] || 0) + count;
+      totalCount += count;
     });
 
     // 2. 상위 50개 추출
@@ -79,24 +76,38 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
     };
   }, [records]);
 
-  // 폰트 크기 스케일 조정 (너무 차이나지 않도록 가공)
-  const fontSizeScale = useMemo(() => {
-    if (wordData.length === 0) return () => 10;
-    const min = Math.min(...wordData.map((d) => d.value));
-    const max = Math.max(...wordData.map((d) => d.value));
+  // 커스텀 스파이럴 레이아웃 (d3-cloud 의존성 제거로 안정성 확보)
+  const layoutWords = useMemo(() => {
+    if (wordData.length === 0) return [];
     
-    // 최소 12px, 최대 50px (너무 크면 레이아웃 실패 가능성 있음)
-    const minSize = viewMode === 'mobile' ? 10 : 12;
-    const maxSize = viewMode === 'mobile' ? 36 : 50;
-    
-    const scale = scaleLinear()
-      .domain([min, max])
-      .range([minSize, maxSize]);
+    const maxVal = wordData[0].value;
+    const minVal = wordData[wordData.length - 1].value;
+    const diff = maxVal - minVal || 1;
+
+    return wordData.map((d, i) => {
+      // 황금비 나선형 배치 (Golden Spiral)
+      const angle = i * 2.4; // 137.5도 (황금각)
+      const radius = Math.sqrt(i) * (viewMode === 'pc' ? 35 : 20);
       
-    return (value: number) => scale(value);
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      
+      const relativePos = (d.value - minVal) / diff;
+      const fontSize = (viewMode === 'pc' ? 14 : 10) + relativePos * (viewMode === 'pc' ? 36 : 20);
+      
+      return {
+        ...d,
+        x,
+        y,
+        fontSize,
+        opacity: 0.7 + relativePos * 0.3
+      };
+    });
   }, [wordData, viewMode]);
 
-  if (records.length === 0) {
+  if (!mounted) return <div className="min-h-[600px] bg-white rounded-lg p-6 shadow animate-pulse" />;
+
+  if (wordData.length === 0) {
     return (
       <div className="rounded-lg bg-white p-6 shadow">
         <div className="mb-6 flex items-center justify-between border-b pb-4">
@@ -115,7 +126,6 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
 
   return (
     <div className="rounded-lg bg-white p-6 shadow page-break-inside-avoid">
-      {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between border-b pb-4">
         <div className="flex items-center space-x-3">
           <MapPin className="w-6 h-6 text-indigo-600" />
@@ -126,7 +136,6 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
         </div>
       </div>
 
-      {/* 통계 정보 */}
       <div className="mb-8 grid grid-cols-2 gap-4">
         <div className="rounded-lg bg-indigo-50 p-4 text-center">
           <div className="text-xs text-gray-600">상위 50개 지역 방문 횟수</div>
@@ -142,30 +151,41 @@ export default function TravelAreasDetail({ yearMonth, records, viewMode }: Prop
         </div>
       </div>
 
-      {/* WordCloud 영역 */}
-      <div className="flex justify-center bg-gray-50 rounded-xl overflow-hidden min-h-[400px]">
-        {mounted ? (
-          <WordCloud
-            data={wordData}
-            width={viewMode === 'pc' ? 800 : 400}
-            height={400}
-            font="Inter, sans-serif"
-            fontWeight="bold"
-            fontSize={(word) => fontSizeScale(word.value)}
-            rotate={0}
-            padding={4}
-            fill={(_, i) => COLOR_PALETTE[i % COLOR_PALETTE.length]}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            시각화 로딩 중...
-          </div>
-        )}
+      <div className="relative flex justify-center bg-gray-50 rounded-xl overflow-hidden min-h-[400px]">
+        <svg
+          width={viewMode === 'pc' ? 800 : 400}
+          height={400}
+          className="max-w-full h-auto"
+          viewBox={`0 0 ${viewMode === 'pc' ? 800 : 400} 400`}
+        >
+          <g transform={`translate(${(viewMode === 'pc' ? 800 : 400) / 2}, 200)`}>
+            {layoutWords.map((word, i) => (
+              <text
+                key={i}
+                x={word.x}
+                y={word.y}
+                style={{
+                  fontSize: `${word.fontSize}px`,
+                  fontWeight: word.fontSize > 20 ? 'bold' : '600',
+                  fontFamily: 'sans-serif',
+                  fill: COLOR_PALETTE[i % COLOR_PALETTE.length],
+                  opacity: word.opacity,
+                  transition: 'all 0.3s ease'
+                }}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="cursor-default select-none hover:opacity-100"
+              >
+                {word.text}
+              </text>
+            ))}
+          </g>
+        </svg>
       </div>
 
-      {/* 하단 주석 */}
-      <div className="mt-6 text-center text-xs text-gray-500">
-        [기준] 방문 빈도가 높은 상위 50개 지역을 시각화하였습니다.
+      <div className="mt-6 text-center text-xs text-gray-500 flex items-center justify-center gap-1">
+        <Info className="w-3 h-3" />
+        방문 빈도가 높은 상위 50개 지역을 시각화하였습니다.
       </div>
     </div>
   );
